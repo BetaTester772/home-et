@@ -1,9 +1,9 @@
 import {
   DEFAULT_COSTS, DEFAULT_WEIGHTS, MIN_WAGE_2026, toPercents,
   type Commute, type LivingCosts, type Percents,
-} from "@/lib/calc";
-import { SCHOOLS, findSchool, type Region } from "@/lib/data";
-import type { WeightAnalysis } from "@/lib/weights";
+} from "./calc";
+import { SCHOOLS, findSchool, type Region } from "./data";
+import type { WeightAnalysis } from "./weights";
 
 export type StepNo = 1 | 2 | 3 | 4;
 

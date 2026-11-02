@@ -1,17 +1,40 @@
 @import "tailwindcss";
 
+/*
+ * ── 디자인 토큰 ─────────────────────────────────────────
+ * 디자인을 바꿀 때는 여기 값만 고치면 앱 전체에 반영돼요.
+ * 컴포넌트는 hex 값을 직접 쓰지 않고 아래 의미 기반 이름만 씁니다.
+ *   bg-primary, text-fg-muted, border-border, rounded-card …
+ */
 @theme {
-  --color-brand: #2b2fa6;
-  --color-brand-dark: #22258a;
-  --color-brand-soft: #eceefb;
+  /* 브랜드 */
+  --color-primary: #2b2fa6;
+  --color-primary-hover: #22258a;
+  --color-primary-soft: #eceefb;
+  --color-on-primary: #ffffff;
   --color-accent: #c2510e;
   --color-accent-soft: #fdeee3;
-  --color-ink: #17181c;
-  --color-sub: #4b5060;
-  --color-muted: #7a7f8c;
-  --color-line: #e5e7eb;
-  --color-field: #f5f6f8;
-  --color-canvas: #f4f5f7;
+  --color-on-accent: #ffffff;
+
+  /* 글자 */
+  --color-fg: #17181c;
+  --color-fg-sub: #4b5060;
+  --color-fg-muted: #7a7f8c;
+
+  /* 면 · 선 */
+  --color-canvas: #f4f5f7; /* 페이지 배경 */
+  --color-surface: #ffffff; /* 카드 */
+  --color-surface-muted: #f5f6f8; /* 입력칸, 안쪽 패널 */
+  --color-surface-subtle: #f8f9fb; /* 용어 카드 */
+  --color-surface-strong: #eceef2; /* 중립 배지 */
+  --color-border: #e5e7eb;
+
+  /* 모양 */
+  --radius-card: 1.5rem;
+  --radius-panel: 1rem;
+  --radius-control: 0.75rem;
+
+  /* 글꼴 */
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
@@ -21,51 +44,40 @@ html {
 
 body {
   background: var(--color-canvas);
-  color: var(--color-ink);
+  color: var(--color-fg);
   font-family: var(--font-sans);
   word-break: keep-all;
 }
 
-/* 가중치 슬라이더 */
-input[type="range"].weight {
+/* Slider (components/ui/slider.tsx) */
+input[type="range"].ui-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 6px;
   border-radius: 999px;
-  background: linear-gradient(to right, var(--color-brand) var(--pct), var(--color-line) var(--pct));
+  background: linear-gradient(to right, var(--color-primary) var(--pct), var(--color-border) var(--pct));
   outline: none;
 }
-input[type="range"].weight::-webkit-slider-thumb {
+input[type="range"].ui-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--color-brand);
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 1px var(--color-brand);
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-primary);
   cursor: pointer;
 }
-input[type="range"].weight::-moz-range-thumb {
+input[type="range"].ui-slider::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--color-brand);
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 1px var(--color-brand);
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-primary);
   cursor: pointer;
 }
-input[type="range"].weight:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 4px rgb(43 47 166 / 0.25);
-}
-
-/* 숫자 입력 스피너 숨김 (단위 표시와 겹치지 않게) */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+input[type="range"].ui-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }

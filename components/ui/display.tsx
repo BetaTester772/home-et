@@ -1,0 +1,143 @@
+import type { ReactNode } from "react";
+import { cx, focusRing, styles } from "./styles";
+
+export type BadgeTone = keyof typeof styles.badge.tone;
+
+export function Badge({ tone = "neutral", className, children }: { tone?: BadgeTone; className?: string; children: ReactNode }) {
+  return <span className={cx(styles.badge.base, styles.badge.tone[tone], className)}>{children}</span>;
+}
+
+/** 큰 숫자 + 단위 (자취지수, 월세 상한) */
+export function BigNumber({
+  value, unit, tone, size = "xl",
+}: { value: ReactNode; unit?: ReactNode; tone?: "primary" | "accent"; size?: "lg" | "xl" }) {
+  return (
+    <p className="flex items-baseline gap-1.5">
+      <span
+        className={cx(
+          "font-bold tracking-tight tabular-nums",
+          size === "xl" ? "text-6xl" : "text-4xl sm:text-5xl",
+          tone && styles.emphasis[tone],
+        )}
+      >
+        {value}
+      </span>
+      {unit && <span className={cx("text-fg-muted", size === "xl" ? "text-lg" : "text-sm")}>{unit}</span>}
+    </p>
+  );
+}
+
+/** 가로 막대 (marker = 50% 위치 기준선) */
+export function Meter({
+  value, tone = "primary", size = "md", marker,
+}: { value: number; tone?: keyof typeof styles.meter.fill; size?: keyof typeof styles.meter.size; marker?: boolean }) {
+  const pct = Math.max(0, Math.min(100, value));
+  return (
+    <div className={cx(styles.meter.track, styles.meter.size[size])} aria-hidden>
+      <div className={cx("h-full rounded-full transition-all", styles.meter.fill[tone])} style={{ width: `${Math.max(2, pct)}%` }} />
+      {marker && <div className={styles.meter.marker} />}
+    </div>
+  );
+}
+
+/** 라벨·값이 위에 붙은 막대 */
+export function LabeledMeter({
+  label, value, pct, tone,
+}: { label: ReactNode; value: ReactNode; pct: number; tone?: keyof typeof styles.meter.fill }) {
+  return (
+    <div>
+      <div className="mb-2 flex justify-between text-sm">
+        <span className="text-fg-sub">{label}</span>
+        <b className="tabular-nums">{value}</b>
+      </div>
+      <Meter value={pct} tone={tone} />
+    </div>
+  );
+}
+
+export function ScaleLabels({ items }: { items: ReactNode[] }) {
+  return (
+    <div className="flex justify-between text-xs text-fg-muted">
+      {items.map((it, i) => (
+        <span key={i}>{it}</span>
+      ))}
+    </div>
+  );
+}
+
+/** 금액 표의 한 줄. total = 합계 줄(위에 구분선) */
+export function StatRow({ label, value, total }: { label: ReactNode; value: ReactNode; total?: boolean }) {
+  const row = (
+    <div className={cx("flex items-baseline justify-between gap-4 py-1.5 text-sm", total ? "font-bold text-fg" : "text-fg-sub")}>
+      <span>{label}</span>
+      <span className={cx("tabular-nums", total ? "text-[15px]" : "text-fg")}>{value}</span>
+    </div>
+  );
+  return total ? <div className="mt-2 border-t border-border pt-2">{row}</div> : row;
+}
+
+export function StatList({ rows }: { rows: { label: ReactNode; value: ReactNode; total?: boolean }[] }) {
+  return (
+    <div>
+      {rows.map((r, i) => (
+        <StatRow key={i} {...r} />
+      ))}
+    </div>
+  );
+}
+
+export function Callout({ tone = "primary", className, children }: { tone?: keyof typeof styles.callout.tone; className?: string; children: ReactNode }) {
+  return <div className={cx(styles.callout.base, styles.callout.tone[tone], className)}>{children}</div>;
+}
+
+/** 번호 매긴 소개 목록 */
+export function NumberedList({ items }: { items: ReactNode[] }) {
+  return (
+    <ol className="space-y-3 text-[15px] text-fg">
+      {items.map((t, i) => (
+        <li key={i} className="flex items-center gap-3">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary-soft text-xs font-bold text-primary">{i + 1}</span>
+          {t}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export function TermCard({ term, children }: { term: string; children: ReactNode }) {
+  return (
+    <div className="rounded-panel border border-border bg-surface-subtle p-4">
+      <p className="font-bold text-primary">{term}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-fg-sub">{children}</p>
+    </div>
+  );
+}
+
+/** 타임라인 한 칸 (선택 가능) */
+export function TimelineItem({
+  badge, badgeTone, title, sub, selected, done, onSelect,
+}: {
+  badge: ReactNode; badgeTone: BadgeTone; title: ReactNode; sub: ReactNode;
+  selected?: boolean; done?: boolean; onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-current={selected ? "step" : undefined}
+      className={cx(
+        "flex w-full items-center gap-4 rounded-panel border p-3 text-left transition",
+        focusRing,
+        selected ? "border-primary/50 bg-primary-soft/70" : "border-border hover:bg-surface-muted",
+      )}
+    >
+      <Badge tone={badgeTone} className="h-9 w-15 shrink-0 rounded-lg px-0 text-sm">
+        {badge}
+      </Badge>
+      <span>
+        <span className={cx("block text-[15px] font-bold", done && "text-fg-muted line-through")}>{title}</span>
+        <span className="block text-sm text-fg-muted">{sub}</span>
+      </span>
+    </button>
+  );
+}
