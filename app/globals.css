@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-brand: #2b2fa6;
+  --color-brand-dark: #22258a;
+  --color-brand-soft: #eceefb;
+  --color-accent: #c2510e;
+  --color-accent-soft: #fdeee3;
+  --color-ink: #17181c;
+  --color-sub: #4b5060;
+  --color-muted: #7a7f8c;
+  --color-line: #e5e7eb;
+  --color-field: #f5f6f8;
+  --color-canvas: #f4f5f7;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  word-break: keep-all;
+}
+
+/* 가중치 슬라이더 */
+input[type="range"].weight {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--color-brand) var(--pct), var(--color-line) var(--pct));
+  outline: none;
+}
+input[type="range"].weight::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px var(--color-brand);
+  cursor: pointer;
+}
+input[type="range"].weight::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px var(--color-brand);
+  cursor: pointer;
+}
+input[type="range"].weight:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgb(43 47 166 / 0.25);
+}
+
+/* 숫자 입력 스피너 숨김 (단위 표시와 겹치지 않게) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
