@@ -4,7 +4,7 @@ import type { AppState } from "@/lib/app-state";
 import type { Region } from "@/lib/data";
 import { rentModel } from "@/lib/view-models";
 import {
-  BigNumber, Button, Callout, Card, CardTitle, Chip, ChipGroup, Field, FinePrint,
+  ActionBar, BigNumber, Button, Callout, Card, CardTitle, Chip, ChipGroup, Field, FinePrint,
   InlineStats, NumberInput, PageHeader, Panel, StatList, TextInput,
 } from "@/components/ui";
 
@@ -27,7 +27,7 @@ export function RentScreen({
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <Card>
           <CardTitle meta={`${m.school.name} 주변`}>자취 지역</CardTitle>
-          <div className="mt-4">
+          <div className="-mx-5 mt-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0">
             <ChipGroup>
               {m.regions.map((rg) => (
                 <Chip key={rg.id} selected={state.regionId === rg.id} onClick={() => update({ regionId: rg.id, leaseRent: rg.rentMedian })}>
@@ -87,11 +87,16 @@ export function RentScreen({
         </Card>
       </div>
 
-      <div className="mt-5 flex justify-end gap-2">
-        <Button variant="secondary" onClick={onBack}>
-          리포트로 돌아가기
-        </Button>
-        <Button onClick={onNext}>계약 일정 등록하기</Button>
+      <div className="mt-5">
+        <ActionBar>
+          <Button variant="secondary" size="lg" onClick={onBack}>
+            <span className="md:hidden">리포트로</span>
+            <span className="hidden md:inline">리포트로 돌아가기</span>
+          </Button>
+          <Button size="lg" onClick={onNext}>
+            계약 일정 등록
+          </Button>
+        </ActionBar>
       </div>
     </div>
   );
@@ -102,7 +107,7 @@ function MapEmbed({ src, title }: { src: string; title: string }) {
   return (
     <div>
       <div className="overflow-hidden rounded-panel border border-border bg-surface-muted">
-        <iframe key={src} title={title} src={src} className="h-64 w-full sm:h-72" loading="lazy" />
+        <iframe key={src} title={title} src={src} className="h-52 w-full md:h-72" loading="lazy" />
       </div>
       <FinePrint className="mt-1.5 text-right text-[11px]">지도 © OpenStreetMap 기여자 · 마커는 학교 위치</FinePrint>
     </div>

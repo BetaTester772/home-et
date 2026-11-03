@@ -37,21 +37,21 @@ export function DdayScreen({
       <PageHeader title="첫 계약, 언제 무엇을 하면 될까?" sub="날짜만 넣으면 단계별 D-day를 알려 드리고, 그때 꼭 알아야 할 용어를 쉽게 풀어 드려요." />
 
       <Card>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr_auto] lg:items-end">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-[1fr_1fr_1.3fr_auto] lg:items-end">
           <Field label="계약일" htmlFor="contract">
             <TextInput id="contract" type="date" value={state.contract} onChange={(e) => update({ contract: e.target.value })} />
           </Field>
           <Field label="잔금·입주일" htmlFor="balance">
             <TextInput id="balance" type="date" value={state.balance} min={state.contract} onChange={(e) => update({ balance: e.target.value })} />
           </Field>
-          <div>
+          <div className="col-span-2 lg:col-span-1">
             <FieldGroupLabel>보증금 / 월세</FieldGroupLabel>
             <div className="grid grid-cols-2 gap-2">
-              <NumberInput suffix="원" step={1_000_000} value={state.leaseDeposit} onChange={(v) => update({ leaseDeposit: v })} />
-              <NumberInput suffix="원" step={10_000} value={state.leaseRent} onChange={(v) => update({ leaseRent: v })} />
+              <NumberInput aria-label="보증금" suffix="원" step={1_000_000} value={state.leaseDeposit} onChange={(v) => update({ leaseDeposit: v })} />
+              <NumberInput aria-label="월세" suffix="원" step={10_000} value={state.leaseRent} onChange={(v) => update({ leaseRent: v })} />
             </div>
           </div>
-          <Button variant="outline" disabled={!m.valid} onClick={() => downloadIcs(buildIcs(m.steps))}>
+          <Button variant="outline" className="col-span-2 lg:col-span-1" disabled={!m.valid} onClick={() => downloadIcs(buildIcs(m.steps))}>
             캘린더 파일 받기 (.ics)
           </Button>
         </div>
@@ -79,32 +79,25 @@ export function DdayScreen({
                     selected={it.key === sel.key}
                     onSelect={() => setPicked(it.key)}
                   />
+                  {/* 모바일: 고른 단계 설명이 바로 아래 펼쳐짐 */}
+                  {it.key === sel.key && (
+                    <div className="px-1 pb-3 pt-4 motion-safe:animate-rise lg:hidden">
+                      <StepDetail sel={sel} />
+                    </div>
+                  )}
                 </li>
               ))}
             </ol>
           </Card>
 
-          <Card>
+          <Card className="hidden lg:block">
             <Eyebrow>
               {sel.badge} · {sel.dateText}
             </Eyebrow>
             <h2 className="mt-1 text-xl font-bold">{sel.title}</h2>
-            <p className="mt-2 text-[15px] leading-relaxed">{sel.todo}</p>
-
-            <div className="mt-6 space-y-3">
-              <SectionLabel>이 단계에서 알아야 할 용어</SectionLabel>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {sel.terms.map((t) => (
-                  <TermCard key={t.term} term={t.term}>
-                    {t.desc}
-                  </TermCard>
-                ))}
-              </div>
+            <div className="mt-2">
+              <StepDetail sel={sel} />
             </div>
-
-            <TextLink href={sel.calendarUrl} target="_blank" rel="noopener noreferrer" className="mt-6">
-              이 단계만 Google 캘린더에 추가 ↗
-            </TextLink>
           </Card>
         </div>
       )}
@@ -113,5 +106,28 @@ export function DdayScreen({
         HOME:ET의 계약 안내는 일반 정보이며 법률 자문이 아니에요. 실제 계약 전에는 등기부등본 원문과 공인중개사 설명을 꼭 함께 확인하세요.
       </FinePrint>
     </div>
+  );
+}
+
+type Selected = NonNullable<ReturnType<typeof ddayModel>["selected"]>;
+
+function StepDetail({ sel }: { sel: Selected }) {
+  return (
+    <>
+      <p className="text-[15px] leading-relaxed">{sel.todo}</p>
+      <div className="mt-6 space-y-3">
+        <SectionLabel>이 단계에서 알아야 할 용어</SectionLabel>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {sel.terms.map((t) => (
+            <TermCard key={t.term} term={t.term}>
+              {t.desc}
+            </TermCard>
+          ))}
+        </div>
+      </div>
+      <TextLink href={sel.calendarUrl} target="_blank" rel="noopener noreferrer" className="mt-6">
+        이 단계만 Google 캘린더에 추가 ↗
+      </TextLink>
+    </>
   );
 }

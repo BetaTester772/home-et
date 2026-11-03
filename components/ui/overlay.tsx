@@ -1,0 +1,135 @@
+"use client";
+
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { cx, focusRing } from "./styles";
+
+// ── 브라우저 상태 훅 ─────────────────────────────
+
+/** 미디어 쿼리 구독. 서버 렌더에선 false(모바일)로 시작 */
+export function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
+}
+
+export const useIsDesktop = () => useMediaQuery("(min-width: 768px)");
+
+/**
+ * 화면 키보드가 가린 높이(px). iOS Safari는 키보드가 떠도 레이아웃 뷰포트가 그대로라
+ * 하단 고정 버튼이 키보드 뒤로 숨는다 → visualViewport로 가린 만큼 올려 준다.
+ * (Android Chrome은 layout의 interactive-widget=resizes-content 덕에 0)
+ */
+export function useKeyboardInset() {
+  return useSyncExternalStore(
+    (cb) => {
+      const vv = window.visualViewport;
+      if (!vv) return () => {};
+      vv.addEventListener("resize", cb);
+      vv.addEventListener("scroll", cb);
+      return () => {
+        vv.removeEventListener("resize", cb);
+        vv.removeEventListener("scroll", cb);
+      };
+    },
+    () => {
+      const vv = window.visualViewport;
+      if (!vv) return 0;
+      const hidden = Math.round(window.innerHeight - vv.height - vv.offsetTop);
+      return hidden > 80 ? hidden : 0; // 주소창 접힘 같은 작은 변화는 무시
+    },
+    () => 0,
+  );
+}
+
+// ── 하단 고정 버튼 바 ─────────────────────────────
+
+/**
+ * 모바일: 화면 아래에 붙는 버튼 바 (키보드가 뜨면 키보드 위로, 그땐 버튼이 가장자리까지 꽉 참)
+ * 데스크톱(md+): 일반 흐름 속 오른쪽 정렬 버튼 줄. desktopClassName으로 바꿀 수 있음
+ */
+export function ActionBar({
+  children, desktopClassName = "md:justify-end md:border-0 md:bg-transparent md:p-0", keyboardAware,
+}: { children: ReactNode; desktopClassName?: string; keyboardAware?: boolean }) {
+  const inset = useKeyboardInset();
+  const lifted = keyboardAware && inset > 0;
+  return (
+    <>
+      {/* 고정 바가 가리는 만큼만 자리 확보 (= pt-3 + lg 버튼 54px + pb). 크면 빈 화면에도 스크롤이 생김 */}
+      <div className="h-[calc(4.25rem_+_max(0.75rem,env(safe-area-inset-bottom)))] shrink-0 md:hidden" aria-hidden />
+      <div
+        style={lifted ? { bottom: inset } : undefined}
+        className={cx(
+          "fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-border bg-surface max-md:[&>*]:flex-1",
+          lifted ? "p-0 [&_button]:rounded-none" : "px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+          "md:static md:z-auto",
+          desktopClassName,
+        )}
+      >
+        {children}
+      </div>
+    </>
+  );
+}
+
+// ── 바텀시트 ─────────────────────────────
+
+export function BottomSheet({
+  open, onClose, title, aside, footer, children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: ReactNode;
+  aside?: ReactNode;
+  footer?: ReactNode;
+  children: ReactNode;
+}) {
+  const inset = useKeyboardInset();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+      <button type="button" aria-label="닫기" onClick={onClose} className="absolute inset-0 cursor-default bg-scrim motion-safe:animate-fade" />
+      <div
+        style={{ bottom: inset }}
+        className="absolute inset-x-0 flex max-h-[88dvh] flex-col rounded-t-card bg-surface motion-safe:animate-sheet"
+      >
+        <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-border" aria-hidden />
+        <div className="flex items-start justify-between gap-3 px-5 pt-4">
+          <h2 className="whitespace-pre-line text-[22px] font-bold leading-snug">{title}</h2>
+          <button type="button" onClick={onClose} aria-label="닫기" className={cx("-mr-2 -mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full text-fg-muted hover:bg-surface-muted", focusRing)}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+              <path d="M4 4l10 10M14 4 4 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+        {aside && <div className="px-5 pt-1">{aside}</div>}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-5">{children}</div>
+        {footer && (
+          <div className={cx("flex gap-2 border-t border-border [&>*]:flex-1", inset > 0 ? "p-0 [&>*]:rounded-none" : "px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]")}>
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}

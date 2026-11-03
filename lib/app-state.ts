@@ -65,10 +65,23 @@ export function selectedRegion(s: AppState): Region {
 /** 자취 지역에서 학교까지 버스·지하철이면 왕복 요금이 생김 (서울 기본요금 기준 가정) */
 export const regionFare = (r: Region) => (r.mode === "도보" ? 0 : 3_000);
 
-const KEY = "home-et:v1";
-export function loadState(): AppState | null {
+/** 학교를 바꾸면 그 학교 첫 동네 시세로 기본값을 맞춘다 */
+export function schoolPatch(s: AppState, id: string): Partial<AppState> {
+  const school = findSchool(id);
+  const r0 = school.regions[0];
+  return {
+    schoolId: school.id,
+    regionId: r0.id,
+    costs: { ...s.costs, rent: r0.rentMedian, mgmt: r0.mgmtMedian },
+    custom: { ...s.custom, lat: school.lat, lng: school.lng },
+    leaseRent: r0.rentMedian,
+  };
+}
+
+export const STORAGE_KEY = "home-et:v1";
+export function loadState(key = STORAGE_KEY): AppState | null {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<AppState>;
     return { ...INITIAL, ...parsed, commute: { ...INITIAL.commute, ...parsed.commute }, costs: { ...INITIAL.costs, ...parsed.costs } };
@@ -76,9 +89,9 @@ export function loadState(): AppState | null {
     return null;
   }
 }
-export function saveState(s: AppState) {
+export function saveState(s: AppState, key = STORAGE_KEY) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(s));
+    localStorage.setItem(key, JSON.stringify(s));
   } catch {
     /* 저장소를 못 쓰는 환경이면 그냥 넘어감 */
   }

@@ -5,7 +5,7 @@ import type { AppState } from "@/lib/app-state";
 import { rebalance, type LivingCosts } from "@/lib/calc";
 import { WEIGHT_LABELS, reportModel } from "@/lib/view-models";
 import {
-  Badge, BigNumber, Button, Callout, Card, CardTitle, Em, Field, FinePrint, LabeledMeter,
+  ActionBar, Badge, BigNumber, Button, Callout, Card, CardTitle, Em, Field, FinePrint, LabeledMeter,
   LinkButton, Meter, NumberInput, Panel, ScaleLabels, SectionLabel, Slider, StatList,
 } from "@/components/ui";
 
@@ -108,20 +108,16 @@ export function ReportScreen({
         </Card>
       </div>
 
-      <Card className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-fg-sub">
-          <span>
-            자취하면 등교일 저녁 <b className="text-fg">{m.eveningGain}</b>
-          </span>
-          <span>
-            막차 걱정 없이 학교에 남을 수 있는 날 <b className="text-fg">{m.lateDays}</b>
-          </span>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={onStay}>
-            통학 유지하기
-          </Button>
-          <Button onClick={onGo}>{m.nextLabel}</Button>
+      <Card padding="sm">
+        <div className="grid grid-cols-2 gap-4 text-sm text-fg-sub sm:flex sm:gap-x-8">
+          <p>
+            등교일 저녁
+            <b className="mt-0.5 block text-lg text-fg sm:ml-1.5 sm:inline sm:text-sm">{m.eveningGain}</b>
+          </p>
+          <p>
+            막차 걱정 없는 날
+            <b className="mt-0.5 block text-lg text-fg sm:ml-1.5 sm:inline sm:text-sm">{m.lateDays}</b>
+          </p>
         </div>
       </Card>
 
@@ -131,6 +127,15 @@ export function ReportScreen({
           <p className="mt-1 text-sm text-fg-sub">{m.stayMessage}</p>
         </Card>
       )}
+
+      <ActionBar>
+        <Button variant="secondary" size="lg" onClick={onStay}>
+          통학 유지하기
+        </Button>
+        <Button size="lg" onClick={onGo}>
+          {m.nextLabel}
+        </Button>
+      </ActionBar>
     </div>
   );
 }
@@ -144,7 +149,7 @@ function Assumptions({ costs, onChange }: { costs: LivingCosts; onChange: (patch
     { label: "보증금", key: "deposit", step: 1_000_000 },
   ];
   return (
-    <Panel className="mt-4 grid gap-3 sm:grid-cols-3">
+    <Panel className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
       {fields.map((f) => (
         <Field key={f.key} compact label={f.label} htmlFor={`as-${f.key}`}>
           <NumberInput id={`as-${f.key}`} tone="inset" size="sm" suffix="원" step={f.step} value={costs[f.key]} onChange={(v) => onChange({ [f.key]: v })} />
@@ -161,7 +166,7 @@ function Assumptions({ costs, onChange }: { costs: LivingCosts; onChange: (patch
           onChange={(v) => onChange({ annualRate: v / 100 })}
         />
       </Field>
-      <FinePrint className="sm:col-span-3">
+      <FinePrint className="col-span-2 md:col-span-3">
         자취 후 왕복 20분, 학기 32주(방학 포함 월평균), 피로 계수 = 0.15 + 0.1 × 환승 횟수(최대 0.5)로 계산해요. 모두 팀 확정 전 초안이에요.
       </FinePrint>
     </Panel>

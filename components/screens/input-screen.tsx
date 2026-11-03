@@ -1,11 +1,11 @@
 "use client";
 
-import type { AppState } from "@/lib/app-state";
+import { schoolPatch, type AppState } from "@/lib/app-state";
 import { MIN_WAGE_2026, type Commute } from "@/lib/calc";
 import { SCHOOLS } from "@/lib/data";
 import {
   Button, Card, CardTitle, Eyebrow, Field, FieldGroupLabel, FinePrint, NumberInput,
-  NumberedList, Panel, Segmented, Select, TextArea, TextInput,
+  NumberedList, Panel, Select, Stepper, TextArea, TextInput,
 } from "@/components/ui";
 
 const INTRO = [
@@ -25,17 +25,7 @@ export function InputScreen({
   const c = state.commute;
   const setC = (patch: Partial<Commute>) => update({ commute: { ...c, ...patch } });
 
-  const changeSchool = (id: string) => {
-    const school = SCHOOLS.find((s) => s.id === id)!;
-    const r0 = school.regions[0];
-    update({
-      schoolId: school.id,
-      regionId: r0.id,
-      costs: { ...state.costs, rent: r0.rentMedian, mgmt: r0.mgmtMedian },
-      custom: { ...state.custom, lat: school.lat, lng: school.lng },
-      leaseRent: r0.rentMedian,
-    });
-  };
+  const changeSchool = (id: string) => update(schoolPatch(state, id));
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:gap-10">
@@ -82,7 +72,7 @@ export function InputScreen({
             </div>
 
             <Panel>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Field compact label="편도" htmlFor="oneway">
                   <NumberInput id="oneway" tone="inset" size="sm" suffix="분" value={c.oneWayMin} onChange={(v) => setC({ oneWayMin: v })} />
                 </Field>
@@ -105,12 +95,7 @@ export function InputScreen({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <FieldGroupLabel>주당 등교일</FieldGroupLabel>
-              <Segmented
-                label="주당 등교일"
-                value={c.daysPerWeek}
-                onChange={(v) => setC({ daysPerWeek: v })}
-                options={[3, 4, 5].map((d) => ({ value: d, label: `${d}일` }))}
-              />
+              <Stepper label="주당 등교일" unit="일" min={1} max={7} value={c.daysPerWeek} onChange={(v) => setC({ daysPerWeek: v })} />
             </div>
             <Field label="내 1시간의 기준 시급" htmlFor="wage" hint={`기본값은 2026년 최저임금(${MIN_WAGE_2026.toLocaleString("ko-KR")}원)이에요.`}>
               <NumberInput id="wage" suffix="원" step={10} value={c.hourlyWage} onChange={(v) => setC({ hourlyWage: v })} />

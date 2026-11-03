@@ -15,7 +15,7 @@ export const styles = {
       default: "border-border",
       highlight: "border-primary/30 bg-primary-soft/60",
     },
-    padding: { md: "p-6 sm:p-7", sm: "p-4 sm:p-5" },
+    padding: { md: "p-5 md:p-7", sm: "p-4 md:p-5" },
   },
   panel: "rounded-panel bg-surface-muted p-4",
 
@@ -35,7 +35,7 @@ export const styles = {
   },
 
   chip: {
-    base: `rounded-full px-4 py-2.5 text-sm font-semibold transition ${focusRing}`,
+    base: `shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition active:scale-[0.97] ${focusRing}`,
     selected: "bg-primary text-on-primary",
     idle: "border border-border bg-surface text-fg-sub hover:bg-surface-muted",
     dashed: "border-dashed",
@@ -48,10 +48,26 @@ export const styles = {
   },
 
   control: {
-    base: "w-full rounded-control border border-border px-3.5 text-[15px] text-fg outline-none transition focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10",
+    // 모바일은 16px 이상이어야 iOS가 포커스할 때 화면을 확대하지 않음
+    base: "w-full rounded-control border border-border px-3.5 text-base md:text-[15px] text-fg outline-none transition focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10",
     tone: { default: "bg-surface-muted", inset: "bg-surface" }, // inset = 회색 패널 안에 놓일 때
     size: { md: "py-3", sm: "py-2.5" },
   },
+  /** 한 화면 한 질문용 큰 입력 (하단 선만) */
+  hero: {
+    wrap: "flex cursor-text items-baseline gap-1.5 border-b-2 border-border pb-2 transition-colors focus-within:border-primary",
+    number: "min-w-[1ch] bg-transparent text-[34px] font-bold leading-tight tracking-tight tabular-nums text-fg outline-none placeholder:text-fg-muted/50 md:text-[40px]",
+    text: "w-full bg-transparent text-2xl font-semibold leading-tight text-fg outline-none placeholder:text-fg-muted/50 md:text-[28px]",
+    suffix: "text-2xl font-bold text-fg-muted md:text-[28px]",
+  },
+
+  /** 크게 누르는 선택지 (목록·격자) */
+  option: {
+    base: `flex min-h-14 w-full items-center gap-3 rounded-panel border px-4 py-3.5 text-left transition active:scale-[0.99] ${focusRing}`,
+    idle: "border-border bg-surface hover:border-fg-muted/40 hover:bg-surface-muted",
+    selected: "border-primary bg-primary-soft text-primary",
+  },
+
   label: "mb-2 block text-sm font-semibold text-fg",
   miniLabel: "mb-1 block text-xs font-medium text-fg-sub",
   hint: "mt-2 text-xs text-fg-muted",

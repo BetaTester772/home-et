@@ -34,12 +34,43 @@
   --radius-panel: 1rem;
   --radius-control: 0.75rem;
 
+  /* 오버레이 */
+  --color-scrim: rgb(23 24 28 / 0.45);
+
+  /* 모션 (motion-safe: 접두사와 함께 씀) */
+  --animate-rise: rise 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  --animate-step-next: step-next 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  --animate-step-prev: step-prev 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  --animate-sheet: sheet-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  --animate-fade: fade 0.2s ease-out backwards;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+  }
+  @keyframes step-next {
+    from { opacity: 0; transform: translateX(28px); }
+  }
+  @keyframes step-prev {
+    from { opacity: 0; transform: translateX(-28px); }
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+  }
+
   /* 글꼴 */
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 html {
   color-scheme: light;
+}
+
+/* 모바일 탭 하이라이트 제거 (눌림 상태는 각 컴포넌트의 active 스타일로) */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -78,6 +109,13 @@ input[type="range"].ui-slider::-moz-range-thumb {
   box-shadow: 0 0 0 1px var(--color-primary);
   cursor: pointer;
 }
+/* 손가락으로 잡기 쉽게: 터치 기기에선 손잡이를 키움 */
+@media (pointer: coarse) {
+  input[type="range"].ui-slider { height: 8px; }
+  input[type="range"].ui-slider::-webkit-slider-thumb { width: 28px; height: 28px; }
+  input[type="range"].ui-slider::-moz-range-thumb { width: 22px; height: 22px; }
+}
+
 input[type="range"].ui-slider:focus-visible::-webkit-slider-thumb {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }

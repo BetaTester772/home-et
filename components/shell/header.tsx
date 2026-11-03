@@ -12,15 +12,18 @@ export const STEPS: { no: StepNo; label: string }[] = [
 ];
 
 export function Header({
-  step, canVisit, onNavigate,
-}: { step: StepNo; canVisit: (no: StepNo) => boolean; onNavigate: (no: StepNo) => void }) {
+  step, canVisit, onNavigate, className,
+}: { step: StepNo; canVisit: (no: StepNo) => boolean; onNavigate: (no: StepNo) => void; className?: string }) {
+  const current = STEPS.find((s) => s.no === step)!;
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-surface/95 backdrop-blur">
+    <header className={cx("sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur", className)}>
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
         <button type="button" onClick={() => onNavigate(1)} className={cx("shrink-0 rounded-md", focusRing)} aria-label="HOME:ET 처음으로">
           <Logo />
         </button>
-        <nav className="-mx-1 flex min-w-0 flex-1 justify-start gap-1 overflow-x-auto px-1 sm:justify-end" aria-label="단계">
+
+        {/* 데스크톱: 단계 알약 */}
+        <nav className="hidden min-w-0 flex-1 justify-end gap-1 md:flex" aria-label="단계">
           {STEPS.map(({ no, label }) => (
             <button
               key={no}
@@ -38,8 +41,30 @@ export function Header({
             </button>
           ))}
         </nav>
+
+        {/* 모바일: 지금 단계 이름 */}
+        <p className="min-w-0 flex-1 truncate text-right text-[13px] font-semibold text-fg-sub md:hidden" aria-live="polite">
+          <span className="tabular-nums text-primary">{step}/4</span> {current.label}
+        </p>
         <AuthButton />
       </div>
+
+      {/* 모바일: 4칸 진행 막대 (누르면 이동) */}
+      <nav className="mx-auto flex max-w-6xl gap-1.5 px-4 pb-1 md:hidden" aria-label="단계">
+        {STEPS.map(({ no, label }) => (
+          <button
+            key={no}
+            type="button"
+            disabled={!canVisit(no)}
+            onClick={() => onNavigate(no)}
+            aria-label={`${no}단계 ${label}`}
+            aria-current={step === no ? "step" : undefined}
+            className={cx("group flex-1 py-2 disabled:cursor-not-allowed", focusRing)}
+          >
+            <span className={cx("block h-1 rounded-full transition", no <= step ? "bg-primary" : "bg-border", no > step && "group-enabled:bg-primary/25")} />
+          </button>
+        ))}
+      </nav>
     </header>
   );
 }
@@ -52,9 +77,9 @@ export function Logo() {
   );
 }
 
-export function Footer() {
+export function Footer({ className }: { className?: string }) {
   return (
-    <footer className="mx-auto w-full max-w-6xl px-4 pb-8 text-xs text-fg-muted sm:px-6">
+    <footer className={cx("mx-auto w-full max-w-6xl px-4 pb-8 text-xs text-fg-muted sm:px-6", className)}>
       HOME:ET · 팀 로컬에선 됐는데 · 시세는 예시 데이터이며 산출식은 팀 확정 전 초안이에요.
     </footer>
   );
