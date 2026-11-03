@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import type { AppState } from "@/lib/app-state";
-import { signed, type LivingCosts } from "@/lib/calc";
+import type { LivingCosts } from "@/lib/calc";
 import { reportModel } from "@/lib/view-models";
 import { cx } from "@/components/ui/styles";
 import {
   ActionBar, Badge, BigNumber, Button, Callout, Card, CardTitle, Dialog, Em, Field, FinePrint, LabeledMeter,
-  LinkButton, Meter, NumberInput, Panel, ScaleLabels, SectionLabel, StatList, Stepper,
+  LinkButton, Meter, NumberInput, Panel, ScaleLabels, SectionLabel, Slider, StatList,
 } from "@/components/ui";
 
 export function ReportScreen({
@@ -126,24 +126,31 @@ export function ReportScreen({
             내 가치관
           </CardTitle>
           <FinePrint className="mt-1">0 = 보통 대학생 기준. 하나를 바꿔도 나머지는 그대로예요.</FinePrint>
-          <div className="mt-4 space-y-4">
+          <div className="mt-5 space-y-6">
             {m.adjust.map((a) => (
               <div key={a.key}>
-                <div className="mb-1.5 flex items-baseline justify-between gap-2 text-sm">
-                  <span>
-                    <b>{a.label}</b> <span className="text-fg-muted">{a.hint}</span>
-                  </span>
-                  <span className="shrink-0 text-fg-sub">{a.level}</span>
-                </div>
-                <Stepper
-                  label={`${a.label} 조정값`}
-                  value={a.value}
+                <Slider
+                  label={<b className="text-fg">{a.label}</b>}
+                  sub={a.hint}
+                  display={
+                    <>
+                      <span className="mr-1.5 font-normal text-fg-sub">{a.level}</span>
+                      {a.display}
+                    </>
+                  }
+                  valueText={`${a.display}, ${a.level}`}
                   min={a.min}
                   max={a.max}
-                  format={signed}
+                  step={1}
+                  origin={0}
+                  value={a.value}
                   onChange={(v) => update({ adj: { ...state.adj, [a.key]: v } })}
                 />
-                <FinePrint className="mt-1 text-right">{a.perStep}</FinePrint>
+                <div className="mt-1.5 flex justify-between text-xs text-fg-muted">
+                  <span>덜 중요</span>
+                  <span>{a.perStep}</span>
+                  <span>더 중요</span>
+                </div>
               </div>
             ))}
           </div>

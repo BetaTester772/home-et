@@ -224,7 +224,7 @@ export function HeroTextInput({
  * size="hero": 한 화면 한 질문용 가운데 큰 숫자 / "md": 폼 안 한 줄
  */
 export function Stepper({
-  value, onChange, min, max, label, unit, prefix, size = "md", autoFocus, onEnter, format,
+  value, onChange, min, max, label, unit, prefix, size = "md", autoFocus, onEnter,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -236,11 +236,8 @@ export function Stepper({
   size?: "md" | "hero";
   autoFocus?: boolean;
   onEnter?: () => void;
-  /** 숫자 표시 바꾸기 (예: +2 처럼 부호 붙이기) */
-  format?: (v: number) => string;
 }) {
   const set = (v: number) => onChange(Math.min(max, Math.max(min, v)));
-  const shown = format ? format(value) : String(value);
   const hero = size === "hero";
   const btn = cx(
     "grid shrink-0 place-items-center rounded-full border border-border bg-surface text-fg transition hover:bg-surface-muted active:scale-95 disabled:cursor-not-allowed disabled:opacity-30",
@@ -262,7 +259,7 @@ export function Stepper({
         aria-valuenow={value}
         aria-valuemin={min}
         aria-valuemax={max}
-        aria-valuetext={`${prefix ?? ""}${shown}${unit ?? ""}`}
+        aria-valuetext={`${prefix ?? ""}${value}${unit ?? ""}`}
         onKeyDown={(e) => {
           const delta = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
           if (delta) {
@@ -283,7 +280,7 @@ export function Stepper({
       >
         {/* 숫자와 같은 크기, 굵기·색만 다르게 */}
         {prefix && <span className="font-medium text-fg-muted">{prefix}</span>}
-        <span className="font-bold tabular-nums">{shown}</span>
+        <span className="font-bold tabular-nums">{value}</span>
         {unit && <span className="font-medium text-fg-muted">{unit}</span>}
       </div>
       <button type="button" className={btn} onClick={() => set(value + 1)} disabled={value >= max} aria-label={`${label} 늘리기`}>
@@ -398,25 +395,51 @@ function CheckMark({ on }: { on: boolean }) {
   );
 }
 
-/** 라벨·값이 위에 붙은 0~100 슬라이더 */
+/**
+ * 라벨·값이 위에 붙은 슬라이더 (기본 0~100).
+ * origin을 주면 그 값에서부터 손잡이까지 채움 → 0 기준 ± 슬라이더 (가운데 눈금 표시)
+ */
 export function Slider({
-  label, value, onChange, display,
-}: { label: ReactNode; value: number; onChange: (v: number) => void; display?: ReactNode }) {
+  label, value, onChange, display, min = 0, max = 100, step = 1, origin, valueText, sub,
+}: {
+  label: ReactNode;
+  value: number;
+  onChange: (v: number) => void;
+  display?: ReactNode;
+  min?: number;
+  max?: number;
+  step?: number;
+  origin?: number;
+  valueText?: string;
+  /** 라벨 줄 아래 작은 설명 */
+  sub?: ReactNode;
+}) {
+  const at = (v: number) => `${((v - min) / (max - min)) * 100}%`;
+  const o = origin ?? min;
+  const [from, to] = value >= o ? [at(o), at(value)] : [at(value), at(o)];
   return (
     <label className="block">
-      <span className="mb-2 flex justify-between text-sm">
+      <span className="mb-2 flex items-baseline justify-between gap-2 text-sm">
         <span className="text-fg-sub">{label}</span>
-        <b className="tabular-nums">{display ?? value}</b>
+        <b className="shrink-0 tabular-nums">{display ?? value}</b>
       </span>
-      <input
-        type="range"
-        className="ui-slider"
-        min={0}
-        max={100}
-        value={value}
-        style={{ ["--pct" as string]: `${value}%` }}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
+      {sub && <span className="-mt-1.5 mb-2 block text-xs text-fg-muted">{sub}</span>}
+      <span className="relative block">
+        {origin !== undefined && (
+          <span aria-hidden className="pointer-events-none absolute top-1/2 h-3.5 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fg-muted/40" style={{ left: at(o) }} />
+        )}
+        <input
+          type="range"
+          className="ui-slider relative block"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          aria-valuetext={valueText}
+          style={{ ["--from" as string]: from, ["--to" as string]: to }}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+      </span>
     </label>
   );
 }
