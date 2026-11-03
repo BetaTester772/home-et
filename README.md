@@ -1,10 +1,17 @@
 # HOME:ET
 
-서울에서 처음 자취를 고민하는 대학생에게 통학 대비 자취의 실제 가치를 수치로 보여 주고, 적정 월세와 계약 D-day까지 안내하는 서비스입니다. (팀 로컬에선 됐는데)
+서울에서 처음 자취를 고민하는 대학생에게 통학 대비 자취의 실제 가치를 수치로 보여 주고, 적정 월세와 계약 D-day까지 안내하는 서비스입니다.
+
+> **GDGoC DevFest 2026 · Tell the Vision 해커톤 Team 3 (팀 로컬에선 됐는데)의 결과물입니다.**
+>
+> - 행사: [GDG DevFest 2026 — Tell the Vision](https://gdgoc-devfest-2026.vercel.app/#overview)
+> - 주최: GDG on Campus KOREA · YONSEI · SKKU · KAIST 연합
+> - Demo Market: 2026년 11월 6일(금), Google for Startups Campus
+> - 서비스: https://home-et-temp.vercel.app
 
 ## 흐름
 
-1. **정보 입력**: 학교, 본가, 통학 정보, 등교일, 시급, 생활 목표
+1. **정보 입력**: 한 화면에 한 질문씩 학교, 본가, 통학 정보, 등교일, 시급, 대학생활 목표(칩 + 추가 설명)를 받습니다. 모바일은 서비스 소개 시작 화면부터 보여 줍니다.
 2. **자취 적합 리포트**: Gemini가 생활 목표에서 돈·시간·체력 가중치를 뽑고 자취지수(0~100, 50 = 손익분기)를 계산합니다. 슬라이더로 바로 재계산할 수 있습니다.
 3. **맞춤 월세 추천**: 자취지수가 50이 되는 월세를 역산해 지역 시세와 비교합니다.
 4. **계약 D-day**: 계약일·잔금일을 기준으로 단계별 할 일과 용어 카드를 보여 주고, .ics / Google 캘린더로 내보냅니다.
@@ -30,9 +37,10 @@ Google OAuth 리디렉션 URI: `http://localhost:3000/api/auth/callback/google`,
 ```
 app/globals.css          디자인 토큰 (색·라운드·글꼴)
 components/
-  ui/                    UI 부품 (Button, Card, Field, Badge, Meter …)
+  ui/                    UI 부품 (Button, Card, Field, Stepper, Badge, Meter, ActionBar, Dialog …)
     styles.ts            부품별 variant 클래스 모음
-  screens/               4개 화면 (부품 + 레이아웃만 사용)
+  input/                 ① 정보 입력: 질문 정의(questions), 한 화면 한 질문 흐름(step-flow)
+  screens/               ②~④ 리포트·월세·D-day 화면 (부품 + 레이아웃만 사용)
   shell/header.tsx       로고, 단계 내비, 로그인 버튼, 푸터
   home-et-app.tsx        상태·화면 전환
 lib/
@@ -52,4 +60,4 @@ app/api/weights          Gemini 가중치 분석
 1. **색·라운드·글꼴**: `app/globals.css`의 `@theme` 토큰만 고치면 돼요. 컴포넌트에는 hex 값이 없고 `bg-primary`, `text-fg-muted`, `rounded-card` 같은 토큰 이름만 써요.
 2. **부품 모양** (버튼 크기, 카드 테두리, 배지 스타일 등): `components/ui/styles.ts`의 variant 맵을 고쳐요.
 3. **부품 구조** (예: 슬라이더를 다른 라이브러리로 교체): `components/ui/*`에서 같은 props를 유지한 채 구현만 바꾸면 화면은 그대로예요.
-4. **화면 레이아웃 전면 개편**: `components/screens/*`의 JSX만 다시 쓰면 돼요. 숫자와 문구는 `lib/view-models.ts`가 계산하니까 계산 로직은 손댈 필요가 없어요.
+4. **화면 레이아웃 전면 개편**: `components/screens/*`(입력은 `components/input/*`)의 JSX만 다시 쓰면 돼요. 숫자와 문구는 `lib/view-models.ts`가 계산하니까 계산 로직은 손댈 필요가 없어요.
