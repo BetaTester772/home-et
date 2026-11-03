@@ -79,6 +79,21 @@ body {
   word-break: keep-all;
 }
 
+/*
+ * 날짜 입력: iOS Safari는 type=date에 고유 최소 너비가 있어 좁은 2열에서 옆 칸을 침범함.
+ * 기본 모양을 끄고 최소 너비를 풀어 칸 너비에 맞춤 (누르면 네이티브 날짜 선택기는 그대로 뜸)
+ */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+}
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left; /* iOS 기본은 가운데 정렬 */
+  min-height: 1.5em; /* 값이 비어도 높이 유지 */
+}
+
 /* Slider (components/ui/slider.tsx) */
 input[type="range"].ui-slider {
   -webkit-appearance: none;

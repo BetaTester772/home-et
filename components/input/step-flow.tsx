@@ -119,15 +119,17 @@ export function StepFlow({ state, update, onSubmit, loading, onOpenReport }: Inp
         <div
           key={idx}
           className={cx(
-            "flex-1 px-5 pt-6 md:px-10 md:pt-8 md:pb-10",
+            "flex-1 px-5 md:px-10 md:pt-8 md:pb-10",
             dir > 0 ? "motion-safe:animate-step-next" : "motion-safe:animate-step-prev",
           )}
         >
           {isReview ? (
             <>
-              <h1 className="text-[26px] font-bold leading-snug tracking-tight md:text-[30px]">이대로 검사할까요?</h1>
-              <p className="mt-2 text-[15px] text-fg-sub">고칠 항목을 누르면 바로 바꿀 수 있어요.</p>
-              <ul className="-mx-5 mt-6 divide-y divide-border border-y border-border md:mx-0 md:overflow-hidden md:rounded-panel md:border">
+              <div className="z-[5] -mx-5 bg-surface px-5 pt-4 pb-6 max-md:sticky max-md:top-[calc(var(--header-h,0px)+3rem)] md:mx-0 md:px-0 md:pt-0 md:pb-0">
+                <h1 className="text-[26px] font-bold leading-snug tracking-tight md:text-[30px]">이대로 검사할까요?</h1>
+                <p className="mt-2 text-[15px] text-fg-sub">고칠 항목을 누르면 바로 바꿀 수 있어요.</p>
+              </div>
+              <ul className="-mx-5 divide-y divide-border border-y border-border md:mx-0 md:mt-6 md:overflow-hidden md:rounded-panel md:border">
                 {QUESTIONS.map((qq, i) => (
                   <li key={qq.id}>
                     <AnswerRow label={qq.label} value={qq.display(state)} onClick={() => edit(i)} />
@@ -137,10 +139,13 @@ export function StepFlow({ state, update, onSubmit, loading, onOpenReport }: Inp
             </>
           ) : (
             <>
-              <p className="text-sm font-semibold text-primary">{q.group}</p>
-              <h1 className="mt-1.5 whitespace-pre-line text-[26px] font-bold leading-snug tracking-tight md:text-[30px]">{q.title}</h1>
-              {q.sub && <p className="mt-2 text-[15px] leading-relaxed text-fg-sub">{q.sub}</p>}
-              <div className="mt-8">
+              {/* 모바일: 질문 제목은 진행률 막대 아래에 고정, 답(목록·입력)만 스크롤 */}
+              <div className="z-[5] -mx-5 bg-surface px-5 pt-4 pb-6 max-md:sticky max-md:top-[calc(var(--header-h,0px)+3rem)] md:mx-0 md:px-0 md:pt-0 md:pb-0">
+                <p className="text-sm font-semibold text-primary">{q.group}</p>
+                <h1 className="mt-1.5 whitespace-pre-line text-[26px] font-bold leading-snug tracking-tight md:text-[30px]">{q.title}</h1>
+                {q.sub && <p className="mt-2 text-[15px] leading-relaxed text-fg-sub">{q.sub}</p>}
+              </div>
+              <div className="pt-2 md:pt-8">
                 <HeroEditor
                   q={q}
                   state={state}

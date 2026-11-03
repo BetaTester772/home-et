@@ -5,7 +5,7 @@ import type { AppState } from "@/lib/app-state";
 import { buildIcs } from "@/lib/dday";
 import { ddayModel, type DdayItem } from "@/lib/view-models";
 import {
-  Button, Callout, Card, CardTitle, Eyebrow, Field, FieldGroupLabel, FinePrint, NumberInput,
+  Button, Callout, Card, CardTitle, Eyebrow, Field, FinePrint, NumberInput,
   PageHeader, SectionLabel, TermCard, TextInput, TextLink, TimelineItem, type BadgeTone,
 } from "@/components/ui";
 
@@ -38,20 +38,20 @@ export function DdayScreen({
       <PageHeader title="첫 계약, 언제 무엇을 하면 될까?" sub="날짜만 넣으면 단계별 D-day를 알려 드리고, 그때 꼭 알아야 할 용어를 쉽게 풀어 드려요." />
 
       <Card>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-[1fr_1fr_1.3fr_auto] lg:items-end">
+        {/* 2×2 같은 간격: 계약일 | 잔금·입주일 / 보증금 | 월세 (데스크톱은 한 줄) */}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:items-end">
           <Field label="계약일" htmlFor="contract">
             <TextInput id="contract" type="date" value={state.contract} onChange={(e) => update({ contract: e.target.value })} />
           </Field>
           <Field label="잔금·입주일" htmlFor="balance">
             <TextInput id="balance" type="date" value={state.balance} min={state.contract} onChange={(e) => update({ balance: e.target.value })} />
           </Field>
-          <div className="col-span-2 lg:col-span-1">
-            <FieldGroupLabel>보증금 / 월세</FieldGroupLabel>
-            <div className="grid grid-cols-2 gap-2">
-              <NumberInput aria-label="보증금" suffix="원" step={1_000_000} value={state.leaseDeposit} onChange={(v) => update({ leaseDeposit: v })} />
-              <NumberInput aria-label="월세" suffix="원" step={10_000} value={state.leaseRent} onChange={(v) => update({ leaseRent: v })} />
-            </div>
-          </div>
+          <Field label="보증금" htmlFor="deposit">
+            <NumberInput id="deposit" suffix="원" step={1_000_000} value={state.leaseDeposit} onChange={(v) => update({ leaseDeposit: v })} />
+          </Field>
+          <Field label="월세" htmlFor="rent">
+            <NumberInput id="rent" suffix="원" step={10_000} value={state.leaseRent} onChange={(v) => update({ leaseRent: v })} />
+          </Field>
           <Button variant="outline" className="col-span-2 lg:col-span-1" disabled={!m.valid} onClick={() => downloadIcs(buildIcs(m.steps))}>
             캘린더 파일 받기 (.ics)
           </Button>

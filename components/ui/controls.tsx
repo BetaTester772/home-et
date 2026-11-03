@@ -73,7 +73,7 @@ export function Field({
   label, htmlFor, hint, compact, children,
 }: { label: ReactNode; htmlFor?: string; hint?: ReactNode; compact?: boolean; children: ReactNode }) {
   return (
-    <div>
+    <div className="min-w-0">
       <label htmlFor={htmlFor} className={compact ? styles.miniLabel : styles.label}>
         {label}
       </label>
@@ -81,10 +81,6 @@ export function Field({
       {hint && <p className={styles.hint}>{hint}</p>}
     </div>
   );
-}
-
-export function FieldGroupLabel({ children }: { children: ReactNode }) {
-  return <p className={styles.label}>{children}</p>;
 }
 
 type ControlProps = { tone?: Tone; size?: Size };

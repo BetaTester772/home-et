@@ -52,7 +52,7 @@ export const QUESTIONS: Question[] = [
     id: "transfers", group: "통학 경로", label: "환승", kind: "input",
     title: "가는 길에 몇 번 갈아타요?",
     sub: "환승이 많을수록 같은 1시간도 더 지치게 계산해요.",
-    display: (s) => (s.commute.transfers === 0 ? "없음" : `${s.commute.transfers}회`), valid: always,
+    display: (s) => (s.commute.transfers === 0 ? "없음" : `${s.commute.transfers}번`), valid: always,
   },
   {
     id: "headway", group: "통학 경로", label: "배차 간격", kind: "input",
