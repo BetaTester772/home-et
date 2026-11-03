@@ -133,7 +133,11 @@ export function TimelineItem({
       className={cx(
         "flex w-full items-center gap-4 rounded-panel border p-3 text-left transition",
         focusRing,
-        selected ? "border-primary/50 bg-primary-soft/70" : "border-border hover:bg-surface-muted",
+        !selected
+          ? "border-border hover:bg-surface-muted"
+          : expanded === false
+            ? "border-border hover:bg-surface-muted lg:border-primary/50 lg:bg-primary-soft/70" // 모바일에서 접으면 강조 해제 (데스크톱은 옆 패널에 열려 있으니 유지)
+            : "border-primary/50 bg-primary-soft/70",
       )}
     >
       <Badge tone={badgeTone} className="h-9 w-15 shrink-0 rounded-lg px-0 text-sm">
@@ -151,7 +155,7 @@ export function TimelineItem({
         aria-hidden
         className={cx(
           "mr-1 shrink-0 transition-transform duration-200 lg:-rotate-90",
-          selected ? "text-primary" : "text-fg-muted",
+          !selected ? "text-fg-muted" : expanded === false ? "text-fg-muted lg:text-primary" : "text-primary",
           expanded && "rotate-180",
         )}
       >
