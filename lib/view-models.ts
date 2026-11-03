@@ -24,6 +24,7 @@ export interface Line { label: string; value: string; total?: boolean }
 export function reportModel(state: AppState, name: string | null) {
   const r = compute(state.commute, state.costs, fromPercents(state.pct));
   const recommended = r.index >= 50;
+  const nextLabel = recommended ? "자취 준비하기" : "그래도 자취하기";
   const myHour = Math.round(r.myHourValue);
   const price = Math.round(r.buyBackPrice);
   const scale = Math.max(myHour, price, 1);
@@ -62,7 +63,7 @@ export function reportModel(state: AppState, name: string | null) {
     ] satisfies Line[],
     eveningGain: `+${hm(r.savedDailyMin)}`,
     lateDays: `주 ${state.commute.daysPerWeek}일`,
-    nextLabel: recommended ? "자취 준비하기" : "그래도 자취하기",
+    nextLabel,
     aiPct,
     isAiValue: !!aiPct && WEIGHT_LABELS.every(({ key }) => aiPct[key] === state.pct[key]),
     reason: state.analysis
@@ -71,7 +72,7 @@ export function reportModel(state: AppState, name: string | null) {
           fallbackNote: state.analysis.source !== "gemini" ? "Gemini API에 연결하지 못해 대체 분석을 썼어요." : null,
         }
       : null,
-    stayMessage: `${name ? `${name} 님, ` : ""}리포트는 이 기기에 저장돼요. 등교일이나 시간표가 바뀌면 다시 계산해 보세요. 마음이 바뀌면 언제든 “그래도 자취하기”로 넘어갈 수 있어요.`,
+    stayMessage: `${name ? `${name} 님, ` : ""}리포트는 이 기기에 저장돼요. 등교일이나 시간표가 바뀌면 다시 계산해 보세요. 마음이 바뀌면 언제든 “${nextLabel}”로 넘어갈 수 있어요.`,
   };
 }
 

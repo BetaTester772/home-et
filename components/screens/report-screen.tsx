@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import type { AppState } from "@/lib/app-state";
 import { rebalance, type LivingCosts } from "@/lib/calc";
 import { WEIGHT_LABELS, reportModel } from "@/lib/view-models";
 import { cx } from "@/components/ui/styles";
 import {
-  ActionBar, Badge, BigNumber, Button, Callout, Card, CardTitle, Em, Field, FinePrint, LabeledMeter,
+  ActionBar, Badge, BigNumber, Button, Callout, Card, CardTitle, Dialog, Em, Field, FinePrint, LabeledMeter,
   LinkButton, Meter, NumberInput, Panel, ScaleLabels, SectionLabel, Slider, StatList,
 } from "@/components/ui";
 
@@ -20,6 +20,8 @@ export function ReportScreen({
   onGo: () => void;
 }) {
   const [showAssumptions, setShowAssumptions] = useState(false);
+  const [stayOpen, setStayOpen] = useState(false);
+  const closeStay = useCallback(() => setStayOpen(false), []);
   const m = reportModel(state, name);
   const tone = m.recommended ? "primary" : "accent";
   const scoreRef = useRef<HTMLDivElement>(null);
@@ -139,15 +141,40 @@ export function ReportScreen({
         </Card>
       </div>
 
-      {state.decision === "stay" && (
-        <Card tone="highlight">
-          <p className="font-bold">통학을 유지하기로 했어요.</p>
-          <p className="mt-1 text-sm text-fg-sub">{m.stayMessage}</p>
-        </Card>
-      )}
+      <Dialog
+        open={stayOpen}
+        onClose={closeStay}
+        title="통학을 유지하기로 했어요"
+        actions={
+          <>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => {
+                closeStay();
+                onGo();
+              }}
+            >
+              {m.nextLabel}
+            </Button>
+            <Button size="lg" onClick={closeStay}>
+              확인
+            </Button>
+          </>
+        }
+      >
+        {m.stayMessage}
+      </Dialog>
 
       <ActionBar>
-        <Button variant="secondary" size="lg" onClick={onStay}>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => {
+            onStay();
+            setStayOpen(true);
+          }}
+        >
           통학 유지하기
         </Button>
         <Button size="lg" onClick={onGo}>

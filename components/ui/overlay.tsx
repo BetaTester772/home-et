@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useId, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cx, focusRing } from "./styles";
 
@@ -78,6 +78,47 @@ export function ActionBar({
   );
 }
 
+// ── 모달 공통 ─────────────────────────────
+
+/** 열려 있는 동안 Esc로 닫기 + 뒤 페이지 스크롤 잠금 */
+function useModalBehavior(open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+}
+
+// ── 가운데 모달 ─────────────────────────────
+
+/** 짧은 안내·확인용 가운데 모달. actions = 하단 버튼들 (같은 너비로 나란히) */
+export function Dialog({
+  open, onClose, title, actions, children,
+}: { open: boolean; onClose: () => void; title: ReactNode; actions?: ReactNode; children?: ReactNode }) {
+  const titleId = useId();
+  useModalBehavior(open, onClose);
+  if (!open) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-50 grid place-items-center p-6" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <button type="button" aria-label="닫기" onClick={onClose} className="absolute inset-0 cursor-default bg-scrim motion-safe:animate-fade" />
+      <div className="relative w-full max-w-sm rounded-card bg-surface p-6 shadow-xl motion-safe:animate-rise">
+        <h2 id={titleId} className="text-xl font-bold leading-snug">
+          {title}
+        </h2>
+        {children && <div className="mt-2 text-[15px] leading-relaxed text-fg-sub">{children}</div>}
+        {actions && <div className="mt-6 flex gap-2 [&>*]:flex-1">{actions}</div>}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 // ── 바텀시트 ─────────────────────────────
 
 export function BottomSheet({
@@ -91,18 +132,7 @@ export function BottomSheet({
   children: ReactNode;
 }) {
   const inset = useKeyboardInset();
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
+  useModalBehavior(open, onClose);
 
   if (!open) return null;
   return createPortal(
