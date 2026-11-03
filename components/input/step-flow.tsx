@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ActionBar, Button, FinePrint, useIsDesktop } from "@/components/ui";
+import { ActionBar, Button, useIsDesktop } from "@/components/ui";
 import { cx } from "@/components/ui/styles";
 import { HeroEditor, QUESTIONS } from "./questions";
 import { AnswerRow, ProgressBar, SideIntro, allValid, type InputFlowProps } from "./shared";
@@ -136,14 +136,9 @@ export function StepFlow({ state, update, onSubmit, loading }: InputFlowProps) {
           >
             이전
           </Button>
-          <div className="contents md:flex md:items-center md:gap-4">
-            <FinePrint className="hidden lg:block">
-              {isReview ? "" : q.kind === "choice" ? "숫자키로 고르기" : "Enter로 다음"}
-            </FinePrint>
-            <Button size="lg" onClick={next} disabled={!valid || loading} className="max-md:flex-1 md:min-w-40">
-              {isReview ? (loading ? "가치관 분석 중…" : "자취 적합 검사 시작") : fromReview ? "확인" : "다음"}
-            </Button>
-          </div>
+          <Button size="lg" onClick={next} disabled={!valid || loading} className="max-md:flex-1 md:min-w-40">
+            {isReview ? (loading ? "가치관 분석 중…" : "자취 적합 검사 시작") : fromReview ? "확인" : "다음"}
+          </Button>
         </ActionBar>
       </section>
     </div>

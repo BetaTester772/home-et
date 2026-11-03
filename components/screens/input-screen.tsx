@@ -76,8 +76,8 @@ export function InputScreen({
                 <Field compact label="편도" htmlFor="oneway">
                   <NumberInput id="oneway" tone="inset" size="sm" suffix="분" value={c.oneWayMin} onChange={(v) => setC({ oneWayMin: v })} />
                 </Field>
-                <Field compact label="환승" htmlFor="transfers">
-                  <NumberInput id="transfers" tone="inset" size="sm" suffix="회" value={c.transfers} onChange={(v) => setC({ transfers: v })} />
+                <Field compact label="환승">
+                  <Stepper label="환승" unit="번" min={0} max={6} value={c.transfers} onChange={(v) => setC({ transfers: v })} />
                 </Field>
                 <Field compact label="배차" htmlFor="headway">
                   <NumberInput id="headway" tone="inset" size="sm" suffix="분" value={c.headwayMin} onChange={(v) => setC({ headwayMin: v })} />

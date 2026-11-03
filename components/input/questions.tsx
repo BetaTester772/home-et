@@ -11,12 +11,14 @@ import { MIN_WAGE_2026, hm, won, type Commute } from "@/lib/calc";
 import { SCHOOLS, findSchool } from "@/lib/data";
 import {
   Chip, Field, FinePrint, HeroNumberInput, HeroTextInput, NumberInput, OptionList,
-  QuickChips, Segmented, Select, Stepper, TextArea, TextInput,
+  QuickChips, Select, Stepper, TextArea, TextInput,
 } from "@/components/ui";
 
 /** 주당 등교일 범위 (학회·주말 활동까지 7일) */
 export const DAYS_MIN = 1;
 export const DAYS_MAX = 7;
+/** 환승 횟수 상한 (피로 계수는 4번부터 최대치라 그 이상은 결과가 같음) */
+export const TRANSFERS_MAX = 6;
 
 export type QId = "school" | "home" | "oneway" | "transfers" | "headway" | "fare" | "days" | "wage" | "goal";
 
@@ -54,7 +56,7 @@ export const QUESTIONS: Question[] = [
     display: (s) => hm(s.commute.oneWayMin), valid: (s) => s.commute.oneWayMin > 0,
   },
   {
-    id: "transfers", group: "통학 경로", label: "환승", kind: "choice",
+    id: "transfers", group: "통학 경로", label: "환승", kind: "input",
     title: "가는 길에 몇 번 갈아타요?",
     sub: "환승이 많을수록 같은 1시간도 더 지치게 계산해요.",
     display: (s) => (s.commute.transfers === 0 ? "없음" : `${s.commute.transfers}회`), valid: always,
@@ -160,18 +162,9 @@ export function HeroEditor({ q, state, update, onDone, autoFocus, shortcuts }: E
       );
     case "transfers":
       return (
-        <OptionList
-          label={q.label} layout="grid" shortcuts={shortcuts} value={c.transfers}
-          options={[
-            { value: 0, label: "없어요", sub: "한 번에 가요" },
-            { value: 1, label: "1번" },
-            { value: 2, label: "2번" },
-            { value: 3, label: "3번 이상" },
-          ]}
-          onSelect={(v) => {
-            setC({ transfers: v });
-            onDone?.();
-          }}
+        <Stepper
+          size="hero" label={q.label} unit="번" min={0} max={TRANSFERS_MAX}
+          value={c.transfers} onChange={(v) => setC({ transfers: v })} autoFocus={autoFocus} onEnter={onDone}
         />
       );
     case "headway":
@@ -285,8 +278,7 @@ export function CompactEditor({ q, state, update }: EditorProps) {
         return <NumberInput id={id} suffix="분" value={c.oneWayMin} onChange={(v) => setC({ oneWayMin: v })} />;
       case "transfers":
         return (
-          <Segmented label={q.label} value={Math.min(3, c.transfers)} onChange={(v) => setC({ transfers: v })}
-            options={[0, 1, 2, 3].map((v) => ({ value: v, label: v === 3 ? "3+" : `${v}회` }))} />
+          <Stepper label={q.label} unit="번" min={0} max={TRANSFERS_MAX} value={c.transfers} onChange={(v) => setC({ transfers: v })} />
         );
       case "headway":
         return <NumberInput id={id} suffix="분" value={c.headwayMin} onChange={(v) => setC({ headwayMin: v })} />;
