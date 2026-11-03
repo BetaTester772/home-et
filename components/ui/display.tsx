@@ -90,20 +90,6 @@ export function Callout({ tone = "primary", className, children }: { tone?: keyo
   return <div className={cx(styles.callout.base, styles.callout.tone[tone], className)}>{children}</div>;
 }
 
-/** 번호 매긴 소개 목록 */
-export function NumberedList({ items }: { items: ReactNode[] }) {
-  return (
-    <ol className="space-y-3 text-[15px] text-fg">
-      {items.map((t, i) => (
-        <li key={i} className="flex items-center gap-3">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary-soft text-xs font-bold text-primary">{i + 1}</span>
-          {t}
-        </li>
-      ))}
-    </ol>
-  );
-}
-
 export function TermCard({ term, children }: { term: string; children: ReactNode }) {
   return (
     <div className="rounded-panel border border-border bg-surface-subtle p-4">

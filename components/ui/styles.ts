@@ -41,12 +41,6 @@ export const styles = {
     dashed: "border-dashed",
   },
 
-  segment: {
-    base: `rounded-control py-3 text-[15px] transition ${focusRing}`,
-    selected: "bg-primary font-bold text-on-primary",
-    idle: "border border-border bg-surface text-fg-sub hover:bg-surface-muted",
-  },
-
   control: {
     // 모바일은 16px 이상이어야 iOS가 포커스할 때 화면을 확대하지 않음
     base: "w-full rounded-control border border-border px-3.5 text-base md:text-[15px] text-fg outline-none transition focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10",

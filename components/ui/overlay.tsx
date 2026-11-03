@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { cx, focusRing } from "./styles";
+import { cx } from "./styles";
 
 // ── 브라우저 상태 훅 ─────────────────────────────
 
@@ -113,51 +113,6 @@ export function Dialog({
         </h2>
         {children && <div className="mt-2 text-[15px] leading-relaxed text-fg-sub">{children}</div>}
         {actions && <div className="mt-6 flex gap-2 [&>*]:flex-1">{actions}</div>}
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-// ── 바텀시트 ─────────────────────────────
-
-export function BottomSheet({
-  open, onClose, title, aside, footer, children,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: ReactNode;
-  aside?: ReactNode;
-  footer?: ReactNode;
-  children: ReactNode;
-}) {
-  const inset = useKeyboardInset();
-  useModalBehavior(open, onClose);
-
-  if (!open) return null;
-  return createPortal(
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-      <button type="button" aria-label="닫기" onClick={onClose} className="absolute inset-0 cursor-default bg-scrim motion-safe:animate-fade" />
-      <div
-        style={{ bottom: inset }}
-        className="absolute inset-x-0 flex max-h-[88dvh] flex-col rounded-t-card bg-surface motion-safe:animate-sheet"
-      >
-        <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-border" aria-hidden />
-        <div className="flex items-start justify-between gap-3 px-5 pt-4">
-          <h2 className="whitespace-pre-line text-[22px] font-bold leading-snug">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="닫기" className={cx("-mr-2 -mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full text-fg-muted hover:bg-surface-muted", focusRing)}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-              <path d="M4 4l10 10M14 4 4 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-        {aside && <div className="px-5 pt-1">{aside}</div>}
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-5">{children}</div>
-        {footer && (
-          <div className={cx("flex gap-2 border-t border-border [&>*]:flex-1", inset > 0 ? "p-0 [&>*]:rounded-none" : "px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]")}>
-            {footer}
-          </div>
-        )}
       </div>
     </div>,
     document.body,

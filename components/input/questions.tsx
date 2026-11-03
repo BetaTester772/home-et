@@ -1,18 +1,11 @@
 "use client";
 
-/**
- * 입력 질문 정의 + 질문별 입력기. 세 가지 입력 방식(A·B·C)이 모두 이걸 공유해요.
- * - hero: 질문 하나를 크게 (한 화면 한 질문, 바텀시트, 쌓이는 폼의 현재 질문)
- * - compact: 작게 (쌓이는 폼에서 이미 답한 칸)
- */
+/** 입력 질문 정의 + 질문별 입력기 (한 화면에 질문 하나를 크게) */
 import type { ReactNode } from "react";
 import { GOAL_TAGS, goalText, schoolPatch, type AppState } from "@/lib/app-state";
 import { MIN_WAGE_2026, hm, won, type Commute } from "@/lib/calc";
 import { SCHOOLS, findSchool } from "@/lib/data";
-import {
-  Chip, Field, HeroNumberInput, HeroTextInput, NumberInput, OptionList,
-  QuickChips, Select, Stepper, TextArea, TextInput,
-} from "@/components/ui";
+import { Chip, HeroNumberInput, HeroTextInput, OptionList, QuickChips, Stepper, TextArea } from "@/components/ui";
 
 /** 주당 등교일 범위 (학회·주말 활동까지 7일) */
 export const DAYS_MIN = 1;
@@ -92,11 +85,6 @@ export const QUESTIONS: Question[] = [
     display: (s) => goalSummary(s), valid: (s) => goalText(s).length > 0,
   },
 ];
-
-export const QUESTION_GROUPS = Array.from(new Set(QUESTIONS.map((q) => q.group))).map((group) => ({
-  group,
-  items: QUESTIONS.map((q, i) => ({ q, i })).filter(({ q }) => q.group === group),
-}));
 
 function goalSummary(s: AppState) {
   const labels: string[] = GOAL_TAGS.filter((t) => s.goalTags.includes(t.id)).map((t) => t.label);
@@ -247,54 +235,5 @@ export function GoalEditor({ id, state, update, rows = 3 }: { id: string; state:
         />
       </div>
     </div>
-  );
-}
-
-/** 작게: 라벨 + 일반 입력 칸 (쌓이는 폼에서 이미 답한 항목) */
-export function CompactEditor({ q, state, update }: EditorProps) {
-  const c = state.commute;
-  const setC = (patch: Partial<Commute>) => update({ commute: { ...c, ...patch } });
-  const id = `compact-${q.id}`;
-
-  const body = (() => {
-    switch (q.id) {
-      case "school":
-        return (
-          <Select id={id} value={state.schoolId} onChange={(e) => update(schoolPatch(state, e.target.value))}>
-            {SCHOOLS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.district})
-              </option>
-            ))}
-          </Select>
-        );
-      case "home":
-        return <TextInput id={id} value={state.home} onChange={(e) => update({ home: e.target.value })} />;
-      case "oneway":
-        return <NumberInput id={id} suffix="분" value={c.oneWayMin} onChange={(v) => setC({ oneWayMin: v })} />;
-      case "transfers":
-        return (
-          <Stepper label={q.label} unit="번" min={0} max={TRANSFERS_MAX} value={c.transfers} onChange={(v) => setC({ transfers: v })} />
-        );
-      case "headway":
-        return <NumberInput id={id} suffix="분" value={c.headwayMin} onChange={(v) => setC({ headwayMin: v })} />;
-      case "fare":
-        return <NumberInput id={id} suffix="원" step={100} value={c.roundTripFare} onChange={(v) => setC({ roundTripFare: v })} />;
-      case "days":
-        return (
-          <Stepper label={q.label} unit="일" min={DAYS_MIN} max={DAYS_MAX} value={c.daysPerWeek} onChange={(v) => setC({ daysPerWeek: v })} />
-        );
-      case "wage":
-        return <NumberInput id={id} suffix="원" step={10} value={c.hourlyWage} onChange={(v) => setC({ hourlyWage: v })} />;
-      case "goal":
-        return <GoalEditor id={id} state={state} update={update} rows={2} />;
-    }
-  })();
-
-  const isGroup = q.id === "transfers" || q.id === "days" || q.id === "goal";
-  return (
-    <Field label={q.label} htmlFor={isGroup ? undefined : id}>
-      {body}
-    </Field>
   );
 }

@@ -41,7 +41,6 @@
   --animate-rise: rise 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   --animate-step-next: step-next 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   --animate-step-prev: step-prev 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  --animate-sheet: sheet-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   --animate-fade: fade 0.2s ease-out backwards;
 
   @keyframes rise {
@@ -52,9 +51,6 @@
   }
   @keyframes step-prev {
     from { opacity: 0; transform: translateX(-28px); }
-  }
-  @keyframes sheet-up {
-    from { transform: translateY(100%); }
   }
   @keyframes fade {
     from { opacity: 0; }

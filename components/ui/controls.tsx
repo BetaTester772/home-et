@@ -62,28 +62,6 @@ export function ChipGroup({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap gap-2">{children}</div>;
 }
 
-/** 하나만 고르는 버튼 묶음 */
-export function Segmented<T extends string | number>({
-  options, value, onChange, label,
-}: { options: { value: T; label: ReactNode }[]; value: T; onChange: (v: T) => void; label: string }) {
-  return (
-    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }} role="radiogroup" aria-label={label}>
-      {options.map((o) => (
-        <button
-          key={String(o.value)}
-          type="button"
-          role="radio"
-          aria-checked={o.value === value}
-          onClick={() => onChange(o.value)}
-          className={cx(styles.segment.base, o.value === value ? styles.segment.selected : styles.segment.idle)}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // ── 폼 ─────────────────────────────
 type Tone = keyof typeof styles.control.tone;
 type Size = keyof typeof styles.control.size;
