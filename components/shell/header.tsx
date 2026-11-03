@@ -12,9 +12,10 @@ export const STEPS: { no: StepNo; label: string }[] = [
   { no: 4, label: "계약 D-day" },
 ];
 
+/** minimalMobile: 모바일에서 로고(+로그인)만. 질문 화면처럼 자체 진행률이 있을 때 단계 표시가 겹치지 않게 */
 export function Header({
-  step, canVisit, onNavigate, className,
-}: { step: StepNo; canVisit: (no: StepNo) => boolean; onNavigate: (no: StepNo) => void; className?: string }) {
+  step, canVisit, onNavigate, minimalMobile, className,
+}: { step: StepNo; canVisit: (no: StepNo) => boolean; onNavigate: (no: StepNo) => void; minimalMobile?: boolean; className?: string }) {
   const current = STEPS.find((s) => s.no === step)!;
   const ref = useRef<HTMLElement>(null);
 
@@ -59,14 +60,14 @@ export function Header({
         </nav>
 
         {/* 모바일: 지금 단계 이름 */}
-        <p className="min-w-0 flex-1 truncate text-right text-[13px] font-semibold text-fg-sub md:hidden" aria-live="polite">
+        <p className={cx("min-w-0 flex-1 truncate text-right text-[13px] font-semibold text-fg-sub md:hidden", minimalMobile && "invisible")} aria-live="polite">
           <span className="tabular-nums text-primary">{step}/4</span> {current.label}
         </p>
         <AuthButton />
       </div>
 
       {/* 모바일: 4칸 진행 막대 (누르면 이동) */}
-      <nav className="mx-auto flex max-w-6xl gap-1.5 px-4 pb-1 md:hidden" aria-label="단계">
+      <nav className={cx("mx-auto flex max-w-6xl gap-1.5 px-4 pb-1 md:hidden", minimalMobile && "hidden")} aria-label="단계">
         {STEPS.map(({ no, label }) => (
           <button
             key={no}

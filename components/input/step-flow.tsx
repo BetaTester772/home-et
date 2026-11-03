@@ -83,7 +83,7 @@ export function StepFlow({ state, update, onSubmit, loading }: InputFlowProps) {
 
       <section className="flex flex-1 flex-col overflow-x-clip bg-surface md:min-h-[600px] md:rounded-card md:border md:border-border">
         {/* 상단: 진행률 막대만. 확인 화면에서 항목을 고치러 온 땐 숨김 (막대가 뒤로 가 보여서 헷갈림) */}
-        <div className="sticky top-0 z-10 flex h-12 items-center bg-surface px-5 md:static md:h-auto md:rounded-t-card md:px-10 md:pt-8">
+        <div className="sticky top-[var(--header-h,0px)] z-10 flex h-12 items-center bg-surface px-5 md:static md:h-auto md:rounded-t-card md:px-10 md:pt-8">
           <ProgressBar value={progress} className={cx("flex-1", fromReview && "invisible")} />
         </div>
 

@@ -66,12 +66,12 @@ export function HomeEtApp() {
   };
 
   const ready = state.analysis !== null;
-  // 모바일 입력 화면: 앱 헤더·푸터 없이 꽉 찬 흰 화면 (한 화면 한 질문)
+  // 모바일 입력 화면: 로고 헤더만 두고 푸터 없이 꽉 찬 흰 화면 (한 화면 한 질문)
   const onInput = state.step === 1;
 
   return (
     <>
-      <Header step={state.step} canVisit={(no) => no === 1 || ready} onNavigate={go} className={onInput ? "max-md:hidden" : undefined} />
+      <Header step={state.step} canVisit={(no) => no === 1 || ready} onNavigate={go} minimalMobile={onInput} />
       <main
         className={cx(
           "mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 md:py-12",
