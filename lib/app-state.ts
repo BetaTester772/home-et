@@ -1,5 +1,5 @@
 import {
-  DEFAULT_COSTS, LEGACY_INITIAL_TOTAL, MIN_WAGE_2026, NEUTRAL, fromLegacyWeights, sanitizeAdjust,
+  DEFAULT_COSTS, LEGACY_INITIAL_TOTALS, MIN_WAGE_2026, NEUTRAL, fromLegacyWeights, sanitizeAdjust,
   type Adjust, type Commute, type LivingCosts,
 } from "./calc";
 import { SCHOOLS, findSchool, type Region } from "./data";
@@ -26,6 +26,10 @@ export interface AppState {
   step: StepNo;
   schoolId: string;
   home: string;
+  /** 고른 통학 경로(RouteOption.key). "manual" = 직접 입력, null = 아직 안 고름 */
+  routeKey: string | null;
+  /** 고른 경로 요약(질문 목록·확인 화면 표시용) */
+  routeSummary: string;
   commute: Commute;
   goalTags: GoalTagId[]; // 대학생활 목표: 고른 칩
   goal: string; // 대학생활 목표: 칩 밖의 추가 설명 (선택)
@@ -48,10 +52,12 @@ export const INITIAL: AppState = {
   step: 1,
   schoolId: firstSchool.id,
   home: "경기 남양주시 별내동",
+  routeKey: null,
+  routeSummary: "",
   commute: {
     oneWayMin: 85,
     transfers: 2,
-    headwayMin: 15,
+    headwayMin: 0, // 배차 간격 질문 삭제. 계산식은 그대로 두고 0으로 고정
     roundTripFare: 4_500,
     daysPerWeek: 4,
     hourlyWage: MIN_WAGE_2026,
@@ -95,7 +101,7 @@ export function schoolPatch(s: AppState, id: string): Partial<AppState> {
   };
 }
 
-const OLD_DEFAULT_GOAL = "학점 관리를 제대로 하고 싶고, 통학 때문에 동아리를 못 해서 아쉬워요. 그래도 부모님께 부담은 덜 드리고 싶어요.";
+const OLD_DEFAULT_GOAL ="학점 관리를 제대로 하고 싶고, 통학 때문에 동아리를 못 해서 아쉬워요. 그래도 부모님께 부담은 덜 드리고 싶어요.";
 
 export const STORAGE_KEY = "home-et:v1";
 export function loadState(key = STORAGE_KEY): AppState | null {
@@ -115,9 +121,16 @@ export function loadState(key = STORAGE_KEY): AppState | null {
       delete parsed.pct;
     }
     parsed.adj = sanitizeAdjust(parsed.adj ?? NEUTRAL);
-    // 중개보수를 따로 계산하기 전 기본 초기 비용(165만)은 새 기본값으로
-    if (parsed.costs?.initialTotal === LEGACY_INITIAL_TOTAL) parsed.costs.initialTotal = DEFAULT_COSTS.initialTotal;
-    return { ...INITIAL, ...parsed, commute: { ...INITIAL.commute, ...parsed.commute }, costs: { ...INITIAL.costs, ...parsed.costs } };
+    // 예전 초기 비용 기본값(165만, 80만: 중개보수 포함)이면 새 기본값(중개보수 제외)으로, 직접 고친 값은 유지
+    if (parsed.costs && LEGACY_INITIAL_TOTALS.includes(parsed.costs.initialTotal ?? -1))
+      parsed.costs.initialTotal = DEFAULT_COSTS.initialTotal;
+    return {
+      ...INITIAL,
+      ...parsed,
+      // 배차 간격 질문이 없어졌으므로 예전에 저장된 값도 0으로
+      commute: { ...INITIAL.commute, ...parsed.commute, headwayMin: 0 },
+      costs: { ...INITIAL.costs, ...parsed.costs },
+    };
   } catch {
     return null;
   }
