@@ -29,6 +29,7 @@ export function DdayScreen({
   today: Date;
 }) {
   const [picked, setPicked] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false); // 모바일: 열린 단계를 다시 누르면 접힘
   const m = ddayModel(state, today, picked);
   const sel = m.selected;
 
@@ -77,10 +78,15 @@ export function DdayScreen({
                     sub={it.dateText}
                     done={it.done}
                     selected={it.key === sel.key}
-                    onSelect={() => setPicked(it.key)}
+                    expanded={it.key === sel.key && !collapsed}
+                    onSelect={() => {
+                      if (it.key === sel.key) return setCollapsed((c) => !c);
+                      setPicked(it.key);
+                      setCollapsed(false);
+                    }}
                   />
                   {/* 모바일: 고른 단계 설명이 바로 아래 펼쳐짐 */}
-                  {it.key === sel.key && (
+                  {it.key === sel.key && !collapsed && (
                     <div className="px-1 pb-3 pt-4 motion-safe:animate-rise lg:hidden">
                       <StepDetail sel={sel} />
                     </div>

@@ -114,17 +114,22 @@ export function TermCard({ term, children }: { term: string; children: ReactNode
 }
 
 /** 타임라인 한 칸 (선택 가능) */
+/**
+ * 타임라인 한 줄. 오른쪽 chevron으로 펼칠 수 있음을 표시
+ * 모바일: 아래 방향(펼치면 위로 뒤집힘) = 바로 아래에 설명이 펼쳐짐 / 데스크톱(lg): 오른쪽 방향 = 옆 패널에 열림
+ */
 export function TimelineItem({
-  badge, badgeTone, title, sub, selected, done, onSelect,
+  badge, badgeTone, title, sub, selected, expanded, done, onSelect,
 }: {
   badge: ReactNode; badgeTone: BadgeTone; title: ReactNode; sub: ReactNode;
-  selected?: boolean; done?: boolean; onSelect: () => void;
+  selected?: boolean; expanded?: boolean; done?: boolean; onSelect: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-current={selected ? "step" : undefined}
+      aria-expanded={expanded}
       className={cx(
         "flex w-full items-center gap-4 rounded-panel border p-3 text-left transition",
         focusRing,
@@ -134,10 +139,24 @@ export function TimelineItem({
       <Badge tone={badgeTone} className="h-9 w-15 shrink-0 rounded-lg px-0 text-sm">
         {badge}
       </Badge>
-      <span>
+      <span className="min-w-0 flex-1">
         <span className={cx("block text-[15px] font-bold", done && "text-fg-muted line-through")}>{title}</span>
         <span className="block text-sm text-fg-muted">{sub}</span>
       </span>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        aria-hidden
+        className={cx(
+          "mr-1 shrink-0 transition-transform duration-200 lg:-rotate-90",
+          selected ? "text-primary" : "text-fg-muted",
+          expanded && "rotate-180",
+        )}
+      >
+        <path d="m4.5 7 4.5 4.5L13.5 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </button>
   );
 }
