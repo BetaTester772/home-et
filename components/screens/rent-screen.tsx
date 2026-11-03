@@ -28,7 +28,7 @@ export function RentScreen({
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
         <Card className="lg:col-start-1 lg:row-start-1">
           <CardTitle meta={`${m.school.name} 주변`}>자취 지역</CardTitle>
-          <div className="-mx-5 mt-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0">
+          <div className="mt-4">
             <ChipGroup>
               {m.regions.map((rg) => (
                 <Chip key={rg.id} selected={state.regionId === rg.id} onClick={() => update({ regionId: rg.id, leaseRent: rg.rentMedian })}>

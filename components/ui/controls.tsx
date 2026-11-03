@@ -59,7 +59,7 @@ export function Chip({
 }
 
 export function ChipGroup({ children }: { children: ReactNode }) {
-  return <div className="flex gap-2 md:flex-wrap">{children}</div>;
+  return <div className="flex flex-wrap gap-2">{children}</div>;
 }
 
 /** 하나만 고르는 버튼 묶음 */
@@ -318,19 +318,17 @@ export function Stepper({
   );
 }
 
-/** 추천값 칩 줄. 모바일에선 가로 스크롤 */
+/** 추천값 칩 줄. 가로 스크롤 없이 줄바꿈 */
 export function QuickChips<T extends string | number>({
   items, value, onSelect, label,
 }: { items: { value: T; label: ReactNode }[]; value?: T; onSelect: (v: T) => void; label: string }) {
   return (
-    <div className="-mx-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0" role="group" aria-label={label}>
-      <div className="flex gap-2 md:flex-wrap">
-        {items.map((it) => (
-          <Chip key={String(it.value)} selected={it.value === value} onClick={() => onSelect(it.value)}>
-            {it.label}
-          </Chip>
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
+      {items.map((it) => (
+        <Chip key={String(it.value)} selected={it.value === value} onClick={() => onSelect(it.value)}>
+          {it.label}
+        </Chip>
+      ))}
     </div>
   );
 }
