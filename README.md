@@ -2,12 +2,24 @@
 
 서울에서 처음 자취를 고민하는 대학생에게 통학 대비 자취의 실제 가치를 수치로 보여 주고, 적정 월세와 계약 D-day까지 안내하는 서비스입니다.
 
-> **GDGoC DevFest 2026 · Tell the Vision 해커톤 Team 3 (팀 로컬에선 됐는데)의 결과물입니다.**
+> **GDGoC DevFest 2026 · Tell the Vision 해커톤 Team 3 「로컬에선 됐는데」의 결과물입니다.**
 >
 > - 행사: [GDG DevFest 2026 — Tell the Vision](https://gdgoc-devfest-2026.vercel.app/#overview)
 > - 주최: GDG on Campus KOREA · YONSEI · SKKU · KAIST 연합
 > - Demo Market: 2026년 11월 6일(금), Google for Startups Campus
+> - 주제: 첫 자취를 위한 정보 제공 플랫폼 (경제 / 교통 / 주거)
 > - 서비스: https://home-et-temp.vercel.app
+
+## 팀 「로컬에선 됐는데」
+
+| 이름 | 학교 | 학과 |
+| --- | --- | --- |
+| 안채연 | KAIST | 전산학부 |
+| 오준호 | 고려대학교 | 컴퓨터학과 |
+| 이가영 | 고려대학교 | 컴퓨터학과 |
+| 안호성 | 성균관대학교 | 지능형소프트웨어학과 |
+| 오진우 | 고려대학교 | 스마트보안학부 |
+| 유선우 | 연세대학교 | 경제학과 |
 
 ## 흐름
 
