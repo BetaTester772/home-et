@@ -4,13 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { ActionBar, Button, useIsDesktop } from "@/components/ui";
 import { cx } from "@/components/ui/styles";
 import { HeroEditor, QUESTIONS } from "./questions";
-import { AnswerRow, ProgressBar, SideIntro, allValid, type InputFlowProps } from "./shared";
+import { AnswerRow, IntroFeatures, ProgressBar, SideIntro, allValid, type InputFlowProps } from "./shared";
 
 const N = QUESTIONS.length;
 const AUTO_NEXT_MS = 220; // 선택 피드백을 잠깐 보여 준 뒤 넘어감
 
-/** A · 한 화면에 한 질문 */
-export function StepFlow({ state, update, onSubmit, loading }: InputFlowProps) {
+/** 한 화면에 한 질문. 모바일은 먼저 시작 화면(서비스 소개)을 보여 줌 */
+export function StepFlow({ state, update, onSubmit, loading, onOpenReport }: InputFlowProps) {
+  const [started, setStarted] = useState(false); // 모바일 시작 화면을 지났는지 (데스크톱은 무시)
   const [idx, setIdx] = useState(0); // N = 확인 화면
   const [dir, setDir] = useState<1 | -1>(1);
   const [reached, setReached] = useState(0);
@@ -81,7 +82,35 @@ export function StepFlow({ state, update, onSubmit, loading }: InputFlowProps) {
         </div>
       </aside>
 
-      <section className="flex flex-1 flex-col overflow-x-clip bg-surface md:min-h-[600px] md:rounded-card md:border md:border-border">
+      {/* 모바일 시작 화면. 표시 여부를 CSS로만 나눠서 데스크톱에서 첫 렌더 때 깜빡이지 않게 */}
+      {!started && (
+        <div className="flex flex-1 flex-col px-5 pt-8 md:hidden">
+          <SideIntro>
+            <div className="mt-8">
+              <IntroFeatures />
+            </div>
+          </SideIntro>
+          <p className="mt-6 text-center text-sm text-fg-muted">질문 {N}개에 답하면 바로 결과가 나와요</p>
+          <ActionBar desktopClassName="md:hidden">
+            {onOpenReport && (
+              <Button variant="secondary" size="lg" onClick={onOpenReport} className="max-md:w-28 max-md:flex-none!">
+                지난 결과
+              </Button>
+            )}
+            <Button
+              size="lg"
+              onClick={() => {
+                setStarted(true);
+                window.scrollTo({ top: 0 });
+              }}
+            >
+              자취 적합 검사 시작
+            </Button>
+          </ActionBar>
+        </div>
+      )}
+
+      <section className={cx("flex flex-1 flex-col overflow-x-clip bg-surface md:min-h-[600px] md:rounded-card md:border md:border-border", !started && "max-md:hidden")}>
         {/* 상단: 진행률 막대만. 확인 화면에서 항목을 고치러 온 땐 숨김 (막대가 뒤로 가 보여서 헷갈림) */}
         <div className="sticky top-[var(--header-h,0px)] z-10 flex h-12 items-center bg-surface px-5 md:static md:h-auto md:rounded-t-card md:px-10 md:pt-8">
           <ProgressBar value={progress} className={cx("flex-1", fromReview && "invisible")} />

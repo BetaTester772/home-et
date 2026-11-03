@@ -79,7 +79,7 @@ export function HomeEtApp() {
           onInput && "max-md:flex max-md:flex-col max-md:p-0 max-md:bg-surface",
         )}
       >
-        {onInput && <StepFlow state={state} update={update} onSubmit={analyze} loading={loading} />}
+        {onInput && <StepFlow state={state} update={update} onSubmit={analyze} loading={loading} onOpenReport={ready ? () => go(2) : undefined} />}
         {state.step === 2 && ready && (
           <ReportScreen
             state={state}

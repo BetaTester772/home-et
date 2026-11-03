@@ -11,6 +11,8 @@ export interface InputFlowProps {
   update: (patch: Partial<AppState>) => void;
   onSubmit: () => void;
   loading: boolean;
+  /** 이미 검사한 결과가 있으면: 리포트로 바로 가기 */
+  onOpenReport?: () => void;
 }
 
 export const allValid = (s: AppState) => QUESTIONS.every((q) => q.valid(s));
@@ -30,6 +32,29 @@ export function SideIntro({ children }: { children?: ReactNode }) {
       </p>
       {children}
     </div>
+  );
+}
+
+const FEATURES = [
+  { title: "자취 적합 리포트", sub: "통학 시간과 체력을 돈으로 바꿔 자취지수를 계산해요." },
+  { title: "맞춤 월세 상한", sub: "내 가치관에서 손해 보지 않는 월세를 알려 드려요." },
+  { title: "계약 D-day", sub: "계약금부터 확정일자까지 할 일을 날짜별로 챙겨요." },
+];
+
+/** 이렇게 알려 드려요: 결과 화면 3개 미리보기 (모바일 시작 화면) */
+export function IntroFeatures() {
+  return (
+    <ol className="space-y-3" aria-label="검사하면 알 수 있는 것">
+      {FEATURES.map((f, i) => (
+        <li key={f.title} className="flex gap-3.5 rounded-panel bg-surface-muted p-4">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary-soft text-xs font-bold text-primary">{i + 1}</span>
+          <span>
+            <span className="block text-[15px] font-bold">{f.title}</span>
+            <span className="mt-0.5 block text-sm leading-relaxed text-fg-sub">{f.sub}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
