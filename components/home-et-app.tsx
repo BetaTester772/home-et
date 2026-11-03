@@ -93,7 +93,7 @@ export function HomeEtApp() {
           />
         )}
         {state.step === 3 && ready && <RentScreen state={state} update={update} name={name} onBack={() => go(2)} onNext={() => go(4)} />}
-        {state.step === 4 && ready && today && <DdayScreen state={state} update={update} today={today} />}
+        {state.step === 4 && ready && today && <DdayScreen state={state} update={update} today={today} onBack={() => go(3)} />}
       </main>
       <Footer className={onInput ? "max-md:hidden" : undefined} />
     </>

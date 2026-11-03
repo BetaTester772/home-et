@@ -91,8 +91,8 @@ export function RentScreen({
 
       <div className="mt-5">
         <ActionBar>
-          <Button variant="secondary" size="lg" onClick={onBack}>
-            <span className="md:hidden">리포트로</span>
+          <Button variant="secondary" size="lg" onClick={onBack} className="max-md:w-24 max-md:flex-none!">
+            <span className="md:hidden">이전</span>
             <span className="hidden md:inline">리포트로 돌아가기</span>
           </Button>
           <Button size="lg" onClick={onNext}>

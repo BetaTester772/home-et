@@ -5,7 +5,7 @@ import type { AppState } from "@/lib/app-state";
 import { buildIcs } from "@/lib/dday";
 import { ddayModel, type DdayItem } from "@/lib/view-models";
 import {
-  Button, Callout, Card, CardTitle, Eyebrow, Field, FinePrint, NumberInput,
+  ActionBar, Button, Callout, Card, CardTitle, Eyebrow, Field, FinePrint, NumberInput,
   PageHeader, SectionLabel, TermCard, TextInput, TextLink, TimelineItem, type BadgeTone,
 } from "@/components/ui";
 
@@ -22,11 +22,12 @@ function downloadIcs(content: string) {
 }
 
 export function DdayScreen({
-  state, update, today,
+  state, update, today, onBack,
 }: {
   state: AppState;
   update: (patch: Partial<AppState>) => void;
   today: Date;
+  onBack: () => void;
 }) {
   const [picked, setPicked] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false); // 모바일: 열린 단계를 다시 누르면 접힘
@@ -39,7 +40,7 @@ export function DdayScreen({
 
       <Card>
         {/* 2×2 같은 간격: 계약일 | 잔금·입주일 / 보증금 | 월세 (데스크톱은 한 줄) */}
-        <div className="grid grid-cols-2 gap-x-3 gap-y-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:items-end">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-4 lg:grid-cols-4 lg:items-end">
           <Field label="계약일" htmlFor="contract">
             <TextInput id="contract" type="date" value={state.contract} onChange={(e) => update({ contract: e.target.value })} />
           </Field>
@@ -52,9 +53,6 @@ export function DdayScreen({
           <Field label="월세" htmlFor="rent">
             <NumberInput id="rent" suffix="원" step={10_000} value={state.leaseRent} onChange={(v) => update({ leaseRent: v })} />
           </Field>
-          <Button variant="outline" className="col-span-2 lg:col-span-1" disabled={!m.valid} onClick={() => downloadIcs(buildIcs(m.steps))}>
-            캘린더 파일 받기 (.ics)
-          </Button>
         </div>
         <FinePrint className="mt-3">{m.amountText} · .ics 파일은 Google·Apple 캘린더 모두에 가져올 수 있어요.</FinePrint>
         {!m.valid && (
@@ -107,6 +105,19 @@ export function DdayScreen({
           </Card>
         </div>
       )}
+
+      {/* 모바일: 하단 고정 (좁은 '이전' + 캘린더 등록), 데스크톱: 오른쪽 정렬 버튼 줄 */}
+      <div className="mt-5">
+        <ActionBar>
+          <Button variant="secondary" size="lg" onClick={onBack} className="max-md:w-24 max-md:flex-none!">
+            <span className="md:hidden">이전</span>
+            <span className="hidden md:inline">월세 추천으로 돌아가기</span>
+          </Button>
+          <Button size="lg" disabled={!m.valid} onClick={() => downloadIcs(buildIcs(m.steps))}>
+            캘린더 파일 받기 (.ics)
+          </Button>
+        </ActionBar>
+      </div>
 
       <FinePrint className="mt-6">
         HOME:ET의 계약 안내는 일반 정보이며 법률 자문이 아니에요. 실제 계약 전에는 등기부등본 원문과 공인중개사 설명을 꼭 함께 확인하세요.
