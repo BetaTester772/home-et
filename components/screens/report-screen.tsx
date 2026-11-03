@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type { AppState } from "@/lib/app-state";
 import { rebalance, type LivingCosts } from "@/lib/calc";
 import { WEIGHT_LABELS, reportModel } from "@/lib/view-models";
+import { cx } from "@/components/ui/styles";
 import {
   ActionBar, Badge, BigNumber, Button, Callout, Card, CardTitle, Em, Field, FinePrint, LabeledMeter,
   LinkButton, Meter, NumberInput, Panel, ScaleLabels, SectionLabel, Slider, StatList,
@@ -21,20 +22,39 @@ export function ReportScreen({
   const [showAssumptions, setShowAssumptions] = useState(false);
   const m = reportModel(state, name);
   const tone = m.recommended ? "primary" : "accent";
+  const scoreRef = useRef<HTMLDivElement>(null);
+  const pinned = useScrolledPast(scoreRef);
 
   return (
     <div className="space-y-5">
+      {/* 점수 카드가 헤더 뒤로 지나가면 헤더 바로 아래에 점수만 작게 붙임 → 아래에서 가치관을 바꿀 때 점수 변화가 보임 */}
+      <div
+        aria-hidden={!pinned}
+        className={cx(
+          "pointer-events-none fixed inset-x-0 top-[calc(var(--header-h,0px)+0.5rem)] z-10 flex justify-center px-4 transition duration-200",
+          pinned ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0",
+        )}
+      >
+        <div className="flex items-center gap-2 rounded-full border border-border bg-surface/95 py-1.5 pl-4 pr-1.5 text-sm shadow-sm backdrop-blur">
+          <span className="text-fg-sub">자취지수</span>
+          <b className={cx("text-base tabular-nums", tone === "primary" ? "text-primary" : "text-accent")}>{m.index}</b>
+          <Badge tone={tone}>{m.verdict}</Badge>
+        </div>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)]">
-        <Card>
-          <CardTitle aside={<Badge tone={tone}>{m.verdict}</Badge>}>{m.title}</CardTitle>
-          <div className="mt-4">
-            <BigNumber value={m.index} unit="/ 100" />
-          </div>
-          <div className="mt-5 space-y-3">
-            <Meter value={m.indexPct} tone={tone} size="sm" marker />
-            <ScaleLabels items={["통학 유리", "50 = 손익분기", "자취 유리"]} />
-          </div>
-        </Card>
+        <div ref={scoreRef}>
+          <Card className="h-full">
+            <CardTitle aside={<Badge tone={tone}>{m.verdict}</Badge>}>{m.title}</CardTitle>
+            <div className="mt-4">
+              <BigNumber value={m.index} unit="/ 100" />
+            </div>
+            <div className="mt-5 space-y-3">
+              <Meter value={m.indexPct} tone={tone} size="sm" marker />
+              <ScaleLabels items={["통학 유리", "50 = 손익분기", "자취 유리"]} />
+            </div>
+          </Card>
+        </div>
 
         <Card>
           {m.hasSavedTime ? (
@@ -43,6 +63,17 @@ export function ReportScreen({
                 자취는 통학 1시간을 약 <Em tone="accent">{m.headline.price}</Em>에 되사는 셈이에요. {m.headline.subject} 1시간을 약{" "}
                 <Em>{m.headline.myHour}</Em>어치로 여기고 있어요.
               </p>
+              {/* 되사는 시간이 실제 생활에서 뭔지: 문장 바로 아래 */}
+              <Panel className="grid grid-cols-2 gap-4 text-sm text-fg-sub">
+                <p>
+                  등교일 저녁
+                  <b className="mt-0.5 block text-lg text-fg">{m.eveningGain}</b>
+                </p>
+                <p>
+                  막차 걱정 없는 날
+                  <b className="mt-0.5 block text-lg text-fg">{m.lateDays}</b>
+                </p>
+              </Panel>
               {m.bars.map((b) => (
                 <LabeledMeter key={b.label} {...b} />
               ))}
@@ -108,19 +139,6 @@ export function ReportScreen({
         </Card>
       </div>
 
-      <Card padding="sm">
-        <div className="grid grid-cols-2 gap-4 text-sm text-fg-sub sm:flex sm:gap-x-8">
-          <p>
-            등교일 저녁
-            <b className="mt-0.5 block text-lg text-fg sm:ml-1.5 sm:inline sm:text-sm">{m.eveningGain}</b>
-          </p>
-          <p>
-            막차 걱정 없는 날
-            <b className="mt-0.5 block text-lg text-fg sm:ml-1.5 sm:inline sm:text-sm">{m.lateDays}</b>
-          </p>
-        </div>
-      </Card>
-
       {state.decision === "stay" && (
         <Card tone="highlight">
           <p className="font-bold">통학을 유지하기로 했어요.</p>
@@ -171,4 +189,25 @@ function Assumptions({ costs, onChange }: { costs: LivingCosts; onChange: (patch
       </FinePrint>
     </Panel>
   );
+}
+
+/** 요소가 sticky 헤더 뒤로 완전히 지나갔는지 */
+function useScrolledPast(ref: RefObject<HTMLElement | null>) {
+  const [past, setPast] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => {
+      const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 0;
+      setPast(el.getBoundingClientRect().bottom < headerH);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [ref]);
+  return past;
 }

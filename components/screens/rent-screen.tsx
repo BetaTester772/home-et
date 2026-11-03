@@ -24,8 +24,9 @@ export function RentScreen({
     <div>
       <PageHeader title="어디서, 얼마까지 내도 될까?" sub="리포트와 같은 기준으로, 내 가치관에서 자취가 손해가 되지 않는 월세 상한을 계산했어요." />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-        <Card>
+      {/* 모바일: 지역 고르기 → 월세 상한 → 지도 순. 데스크톱: 왼쪽 지역·지도, 오른쪽 상한 */}
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
+        <Card className="lg:col-start-1 lg:row-start-1">
           <CardTitle meta={`${m.school.name} 주변`}>자취 지역</CardTitle>
           <div className="-mx-5 mt-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0">
             <ChipGroup>
@@ -64,15 +65,9 @@ export function RentScreen({
             </Panel>
           )}
 
-          <div className="mt-4">
-            <MapEmbed src={m.map.src} title={m.map.title} />
-          </div>
-          <div className="mt-3">
-            <InlineStats items={m.stats} />
-          </div>
         </Card>
 
-        <Card>
+        <Card className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
           <CardTitle>{m.title}</CardTitle>
           <div className="mt-3">
             <BigNumber value={m.capText} unit={m.hasCap ? "/ 월 이하" : undefined} tone="primary" size="lg" />
@@ -84,6 +79,13 @@ export function RentScreen({
             </div>
           )}
           <FinePrint className="mt-4">{m.weightsNote}</FinePrint>
+        </Card>
+
+        <Card className="lg:col-start-1 lg:row-start-2">
+          <MapEmbed src={m.map.src} title={m.map.title} />
+          <div className="mt-3">
+            <InlineStats items={m.stats} />
+          </div>
         </Card>
       </div>
 

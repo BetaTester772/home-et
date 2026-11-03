@@ -299,11 +299,15 @@ export function Stepper({
             onEnter();
           }
         }}
-        className={cx("flex items-baseline justify-center gap-1 rounded-control px-2 outline-none focus-visible:ring-4 focus-visible:ring-primary/20", hero ? "min-w-36" : "min-w-20")}
+        className={cx(
+          "flex items-baseline justify-center rounded-control px-2 leading-tight outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
+          hero ? "min-w-36 gap-2.5 text-[40px]" : "min-w-20 gap-1.5 text-lg",
+        )}
       >
-        {prefix && <span className={hero ? styles.hero.suffix : "text-sm text-fg-sub"}>{prefix}</span>}
-        <span className={cx("font-bold tabular-nums", hero ? "text-[44px] leading-tight" : "text-lg")}>{value}</span>
-        {unit && <span className={hero ? styles.hero.suffix : "text-sm text-fg-sub"}>{unit}</span>}
+        {/* 숫자와 같은 크기, 굵기·색만 다르게 */}
+        {prefix && <span className="font-medium text-fg-muted">{prefix}</span>}
+        <span className="font-bold tabular-nums">{value}</span>
+        {unit && <span className="font-medium text-fg-muted">{unit}</span>}
       </div>
       <button type="button" className={btn} onClick={() => set(value + 1)} disabled={value >= max} aria-label={`${label} 늘리기`}>
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>

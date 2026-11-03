@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { StepNo } from "@/lib/app-state";
 import { useAuth } from "@/components/providers";
 import { cx, focusRing } from "@/components/ui/styles";
@@ -15,8 +16,23 @@ export function Header({
   step, canVisit, onNavigate, className,
 }: { step: StepNo; canVisit: (no: StepNo) => boolean; onNavigate: (no: StepNo) => void; className?: string }) {
   const current = STEPS.find((s) => s.no === step)!;
+  const ref = useRef<HTMLElement>(null);
+
+  // 헤더 높이를 --header-h로 공유 (헤더 바로 아래에 붙는 스티키 요소용)
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const ro = new ResizeObserver(() => root.style.setProperty("--header-h", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--header-h");
+    };
+  }, []);
+
   return (
-    <header className={cx("sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur", className)}>
+    <header ref={ref} className={cx("sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur", className)}>
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
         <button type="button" onClick={() => onNavigate(1)} className={cx("shrink-0 rounded-md", focusRing)} aria-label="HOME:ET 처음으로">
           <Logo />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ActionBar, Button, NumberedList } from "@/components/ui";
+import { ActionBar, Button, NumberedList, useIsDesktop } from "@/components/ui";
 import { CompactEditor, HeroEditor, QUESTIONS } from "./questions";
 import { ProgressBar, SideIntro, allValid, type InputFlowProps } from "./shared";
 
@@ -12,6 +12,7 @@ const INTRO = ["통학 시간과 피로 회복 시간을 돈으로 환산", "내
 export function StackFlow({ state, update, onSubmit, loading }: InputFlowProps) {
   const [count, setCount] = useState(1); // 지금까지 나온 질문 수
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const desktop = useIsDesktop();
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
 
   const cur = QUESTIONS[count - 1];
@@ -55,7 +56,7 @@ export function StackFlow({ state, update, onSubmit, loading }: InputFlowProps) 
           <h1 className="whitespace-pre-line text-[26px] font-bold leading-snug tracking-tight md:text-[30px]">{cur.title}</h1>
           {cur.sub && <p className="mt-2 text-[15px] leading-relaxed text-fg-sub">{cur.sub}</p>}
           <div className="mt-7">
-            <HeroEditor q={cur} state={state} update={update} autoFocus={count > 1} onDone={onDone} />
+            <HeroEditor q={cur} state={state} update={update} autoFocus={desktop && count > 1} onDone={onDone} />
           </div>
         </div>
 

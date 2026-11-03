@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ActionBar, Button, FinePrint, useIsDesktop } from "@/components/ui";
-import { cx, focusRing } from "@/components/ui/styles";
+import { cx } from "@/components/ui/styles";
 import { HeroEditor, QUESTIONS } from "./questions";
 import { AnswerRow, ProgressBar, SideIntro, allValid, type InputFlowProps } from "./shared";
 
@@ -82,23 +82,9 @@ export function StepFlow({ state, update, onSubmit, loading }: InputFlowProps) {
       </aside>
 
       <section className="flex flex-1 flex-col bg-surface md:min-h-[600px] md:rounded-card md:border md:border-border">
-        {/* 상단: 뒤로 · 진행률 */}
-        <div className="sticky top-0 z-10 flex h-14 items-center gap-2 bg-surface px-2 md:static md:h-auto md:rounded-t-card md:px-10 md:pt-8">
-          <button
-            type="button"
-            onClick={prev}
-            disabled={idx === 0 && !fromReview}
-            aria-label="이전 질문"
-            className={cx("grid h-11 w-11 place-items-center rounded-full text-fg hover:bg-surface-muted disabled:invisible md:hidden", focusRing)}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-              <path d="M12.5 4 6.5 10l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <ProgressBar value={progress} className="flex-1" />
-          <span className="w-12 text-right text-xs font-semibold tabular-nums text-fg-muted md:w-14">
-            {isReview ? "확인" : `${idx + 1} / ${N}`}
-          </span>
+        {/* 상단: 진행률 막대만. 확인 화면에서 항목을 고치러 온 땐 숨김 (막대가 뒤로 가 보여서 헷갈림) */}
+        <div className="sticky top-0 z-10 flex h-12 items-center bg-surface px-5 md:static md:h-auto md:rounded-t-card md:px-10 md:pt-8">
+          <ProgressBar value={progress} className={cx("flex-1", fromReview && "invisible")} />
         </div>
 
         <div
@@ -130,7 +116,7 @@ export function StepFlow({ state, update, onSubmit, loading }: InputFlowProps) {
                   q={q}
                   state={state}
                   update={update}
-                  autoFocus
+                  autoFocus={desktop} // 모바일은 자동 포커스 X: 화면마다 키보드가 올라오며 하단 바가 들썩임
                   shortcuts={desktop}
                   onDone={q.kind === "choice" ? autoNext : next}
                 />
