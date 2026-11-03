@@ -1,5 +1,5 @@
 // 자취지수 산출식 (기획서 초안 + 프로토타입 화면 기준)
-// 모든 금액은 원, 모든 값은 "방학 포함 월평균"입니다.
+// 모든 금액은 원, 모든 값은 "학기 중 한 달" 기준입니다 (월 등교일 = 주당 등교일 × 4.3, 기획서 기준).
 
 export type Weights = { money: number; time: number; body: number }; // 합 = 1
 
@@ -23,17 +23,28 @@ export interface LivingCosts {
 
 // ── 팀 확정 전 가정값 ─────────────────────────────
 export const MIN_WAGE_2026 = 10_320;
-export const SEMESTER_WEEKS_PER_YEAR = 32; // 2학기 × 16주
-export const WEEKS_PER_MONTH = SEMESTER_WEEKS_PER_YEAR / 12; // 방학 포함 월평균
+export const WEEKS_PER_MONTH = 4.3; // 한 달 주 수 (기획서). 방학은 반영하지 않음
 export const DEFAULT_LIVING_ROUND_TRIP_MIN = 20; // ①: 학교 주변 자취 가정 왕복 20분
 export const DEFAULT_WEIGHTS: Weights = { money: 1 / 3, time: 1 / 3, body: 1 / 3 };
 
 export const DEFAULT_COSTS: Omit<LivingCosts, "rent" | "mgmt"> = {
   living: 150_000,
-  initialTotal: 1_650_000,
+  initialTotal: 800_000,
   deposit: 10_000_000,
   annualRate: 0.035,
 };
+
+/**
+ * 수도권 통합 거리비례 요금(편도, 카드). Google 경로에 요금이 비어 올 때 씀.
+ * 10km까지 1,550원, 10~50km 5km마다 +100, 50km 초과 8km마다 +100
+ */
+// ponytail: 광역버스·GTX 별도 요금 미반영. 해당 경로가 많아지면 탈것 종류별 요금 추가
+export function metroFare(km: number) {
+  let fare = 1_550;
+  if (km > 10) fare += Math.ceil((Math.min(km, 50) - 10) / 5) * 100;
+  if (km > 50) fare += Math.ceil((km - 50) / 8) * 100;
+  return fare;
+}
 
 /** 피로 계수 f: 환승이 많을수록 같은 1시간이 더 지친다 (상한 0.5). */
 export function fatigueCoef(transfers: number) {
