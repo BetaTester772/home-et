@@ -3,9 +3,10 @@
 import { schoolPatch, type AppState } from "@/lib/app-state";
 import { MIN_WAGE_2026, type Commute } from "@/lib/calc";
 import { SCHOOLS } from "@/lib/data";
+import { GoalEditor } from "@/components/input/questions";
 import {
   Button, Card, CardTitle, Eyebrow, Field, FieldGroupLabel, FinePrint, NumberInput,
-  NumberedList, Panel, Select, Stepper, TextArea, TextInput,
+  NumberedList, Panel, Select, Stepper, TextInput,
 } from "@/components/ui";
 
 const INTRO = [
@@ -102,15 +103,11 @@ export function InputScreen({
             </Field>
           </div>
 
-          <Field label="대학생활에서 얻고 싶은 것" htmlFor="goal" hint="AI가 이 글을 읽고 돈·시간·체력 중 무엇을 더 중요하게 여기는지 분석해요.">
-            <TextArea
-              id="goal"
-              rows={4}
-              value={state.goal}
-              onChange={(e) => update({ goal: e.target.value })}
-              placeholder="예: 학점 관리를 제대로 하고 싶어요. 알바도 해야 해서 체력이 걱정돼요."
-            />
-          </Field>
+          <div>
+            <FieldGroupLabel>대학생활에서 얻고 싶은 것</FieldGroupLabel>
+            <GoalEditor id="goal" state={state} update={update} />
+            <FinePrint className="mt-2">AI가 고른 항목과 글을 읽고 돈·시간·체력 중 무엇을 더 중요하게 여기는지 분석해요.</FinePrint>
+          </div>
 
           <Button type="submit" size="lg" block disabled={loading || c.oneWayMin <= 0}>
             {loading ? "가치관 분석 중…" : "자취 적합 검사 시작"}

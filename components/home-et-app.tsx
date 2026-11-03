@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { cx } from "@/components/ui/styles";
-import { INITIAL, STORAGE_KEY, loadState, saveState, type AppState, type StepNo } from "@/lib/app-state";
+import { INITIAL, STORAGE_KEY, goalText, loadState, saveState, type AppState, type StepNo } from "@/lib/app-state";
 import { DEFAULT_WEIGHTS, toPercents } from "@/lib/calc";
 import { addDays, startOfDay, toInput } from "@/lib/dday";
 import type { VariantId } from "@/lib/variants";
@@ -59,7 +59,7 @@ export function HomeEtApp({ variant = "classic" }: { variant?: VariantId }) {
       const res = await fetch("/api/weights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ goal: state.goal }),
+        body: JSON.stringify({ goal: goalText(state) }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const analysis = (await res.json()) as WeightAnalysis;

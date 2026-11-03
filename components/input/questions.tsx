@@ -6,11 +6,11 @@
  * - compact: 작게 (쌓이는 폼에서 이미 답한 칸)
  */
 import type { ReactNode } from "react";
-import { schoolPatch, type AppState } from "@/lib/app-state";
+import { GOAL_TAGS, goalText, schoolPatch, type AppState } from "@/lib/app-state";
 import { MIN_WAGE_2026, hm, won, type Commute } from "@/lib/calc";
 import { SCHOOLS, findSchool } from "@/lib/data";
 import {
-  Chip, Field, FinePrint, HeroNumberInput, HeroTextInput, NumberInput, OptionList,
+  Chip, Field, HeroNumberInput, HeroTextInput, NumberInput, OptionList,
   QuickChips, Select, Stepper, TextArea, TextInput,
 } from "@/components/ui";
 
@@ -88,8 +88,8 @@ export const QUESTIONS: Question[] = [
   {
     id: "goal", group: "가치관", label: "대학생활 목표", kind: "input",
     title: "대학생활에서\n얻고 싶은 걸 알려 주세요",
-    sub: "AI가 이 글을 읽고 돈·시간·체력 중 무엇을 더 중요하게 여기는지 분석해요.",
-    display: (s) => s.goal.trim() || "입력 전", valid: (s) => s.goal.trim().length > 0,
+    sub: "해당하는 걸 모두 골라 주세요. AI가 돈·시간·체력 중 무엇을 더 중요하게 여기는지 분석해요.",
+    display: (s) => goalSummary(s), valid: (s) => goalText(s).length > 0,
   },
 ];
 
@@ -98,14 +98,11 @@ export const QUESTION_GROUPS = Array.from(new Set(QUESTIONS.map((q) => q.group))
   items: QUESTIONS.map((q, i) => ({ q, i })).filter(({ q }) => q.group === group),
 }));
 
-const GOAL_HINTS = [
-  "학점 관리를 제대로 하고 싶어요.",
-  "동아리·대외활동을 하고 싶어요.",
-  "알바를 병행해야 해요.",
-  "통학 때문에 너무 피곤해요.",
-  "부모님께 부담을 덜 드리고 싶어요.",
-  "생활비를 최대한 아끼고 싶어요.",
-];
+function goalSummary(s: AppState) {
+  const labels: string[] = GOAL_TAGS.filter((t) => s.goalTags.includes(t.id)).map((t) => t.label);
+  if (s.goal.trim()) labels.push(labels.length ? "추가 설명" : s.goal.trim());
+  return labels.join(", ") || "입력 전";
+}
 
 export interface EditorProps {
   q: Question;
@@ -205,7 +202,7 @@ export function HeroEditor({ q, state, update, onDone, autoFocus, shortcuts }: E
         />
       );
     case "goal":
-      return <GoalEditor id={id} state={state} update={update} autoFocus={autoFocus} />;
+      return <GoalEditor id={id} state={state} update={update} />;
   }
 }
 
@@ -224,31 +221,30 @@ function NumberWithChips<T extends number>({
   );
 }
 
-function GoalEditor({ id, state, update, autoFocus, rows = 5 }: { id: string; state: AppState; update: EditorProps["update"]; autoFocus?: boolean; rows?: number }) {
-  const add = (t: string) => {
-    if (state.goal.includes(t)) return;
-    update({ goal: [state.goal.trim(), t].filter(Boolean).join(" ") });
-  };
+/** 대학생활 목표: 칩으로 먼저 고르고, 칩에 없는 건 아래 칸에 직접 (칩과 글은 따로 저장) */
+export function GoalEditor({ id, state, update, rows = 3 }: { id: string; state: AppState; update: EditorProps["update"]; rows?: number }) {
+  const toggle = (tag: AppState["goalTags"][number]) =>
+    update({ goalTags: state.goalTags.includes(tag) ? state.goalTags.filter((t) => t !== tag) : [...state.goalTags, tag] });
   return (
-    <div className="space-y-4">
-      <TextArea
-        id={id}
-        aria-label="대학생활에서 얻고 싶은 것"
-        rows={rows}
-        autoFocus={autoFocus}
-        value={state.goal}
-        onChange={(e) => update({ goal: e.target.value })}
-        placeholder="예: 학점 관리를 제대로 하고 싶어요. 알바도 해야 해서 체력이 걱정돼요."
-      />
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="대학생활 목표 고르기">
+        {GOAL_TAGS.map((t) => (
+          <Chip key={t.id} selected={state.goalTags.includes(t.id)} onClick={() => toggle(t.id)}>
+            {t.label}
+          </Chip>
+        ))}
+      </div>
       <div>
-        <FinePrint className="mb-2">눌러서 문장 추가</FinePrint>
-        <div className="flex flex-wrap gap-2">
-          {GOAL_HINTS.map((t) => (
-            <Chip key={t} selected={state.goal.includes(t)} onClick={() => add(t)}>
-              {t.replace(/[.]$/, "")}
-            </Chip>
-          ))}
-        </div>
+        <label htmlFor={id} className="mb-2 block text-sm font-semibold text-fg">
+          추가로 하고 싶은 말 <span className="font-normal text-fg-muted">(선택)</span>
+        </label>
+        <TextArea
+          id={id}
+          rows={rows}
+          value={state.goal}
+          onChange={(e) => update({ goal: e.target.value })}
+          placeholder="예: 통학 때문에 동아리를 못 해서 아쉬워요."
+        />
       </div>
     </div>
   );
@@ -291,11 +287,11 @@ export function CompactEditor({ q, state, update }: EditorProps) {
       case "wage":
         return <NumberInput id={id} suffix="원" step={10} value={c.hourlyWage} onChange={(v) => setC({ hourlyWage: v })} />;
       case "goal":
-        return <TextArea id={id} rows={3} value={state.goal} onChange={(e) => update({ goal: e.target.value })} />;
+        return <GoalEditor id={id} state={state} update={update} rows={2} />;
     }
   })();
 
-  const isGroup = q.id === "transfers" || q.id === "days";
+  const isGroup = q.id === "transfers" || q.id === "days" || q.id === "goal";
   return (
     <Field label={q.label} htmlFor={isGroup ? undefined : id}>
       {body}
