@@ -224,7 +224,7 @@ export function HeroTextInput({
  * size="hero": 한 화면 한 질문용 가운데 큰 숫자 / "md": 폼 안 한 줄
  */
 export function Stepper({
-  value, onChange, min, max, label, unit, prefix, size = "md", autoFocus, onEnter,
+  value, onChange, min, max, label, unit, prefix, size = "md", autoFocus, onEnter, format,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -236,8 +236,11 @@ export function Stepper({
   size?: "md" | "hero";
   autoFocus?: boolean;
   onEnter?: () => void;
+  /** 숫자 표시 바꾸기 (예: +2 처럼 부호 붙이기) */
+  format?: (v: number) => string;
 }) {
   const set = (v: number) => onChange(Math.min(max, Math.max(min, v)));
+  const shown = format ? format(value) : String(value);
   const hero = size === "hero";
   const btn = cx(
     "grid shrink-0 place-items-center rounded-full border border-border bg-surface text-fg transition hover:bg-surface-muted active:scale-95 disabled:cursor-not-allowed disabled:opacity-30",
@@ -259,7 +262,7 @@ export function Stepper({
         aria-valuenow={value}
         aria-valuemin={min}
         aria-valuemax={max}
-        aria-valuetext={`${prefix ?? ""}${value}${unit ?? ""}`}
+        aria-valuetext={`${prefix ?? ""}${shown}${unit ?? ""}`}
         onKeyDown={(e) => {
           const delta = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
           if (delta) {
@@ -280,7 +283,7 @@ export function Stepper({
       >
         {/* 숫자와 같은 크기, 굵기·색만 다르게 */}
         {prefix && <span className="font-medium text-fg-muted">{prefix}</span>}
-        <span className="font-bold tabular-nums">{value}</span>
+        <span className="font-bold tabular-nums">{shown}</span>
         {unit && <span className="font-medium text-fg-muted">{unit}</span>}
       </div>
       <button type="button" className={btn} onClick={() => set(value + 1)} disabled={value >= max} aria-label={`${label} 늘리기`}>

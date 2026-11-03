@@ -1,6 +1,6 @@
 import {
-  DEFAULT_COSTS, DEFAULT_WEIGHTS, MIN_WAGE_2026, toPercents,
-  type Commute, type LivingCosts, type Percents,
+  DEFAULT_COSTS, LEGACY_INITIAL_TOTAL, MIN_WAGE_2026, NEUTRAL, fromLegacyWeights, sanitizeAdjust,
+  type Adjust, type Commute, type LivingCosts,
 } from "./calc";
 import { SCHOOLS, findSchool, type Region } from "./data";
 import type { WeightAnalysis } from "./weights";
@@ -30,7 +30,7 @@ export interface AppState {
   goalTags: GoalTagId[]; // 대학생활 목표: 고른 칩
   goal: string; // 대학생활 목표: 칩 밖의 추가 설명 (선택)
   analysis: WeightAnalysis | null;
-  pct: Percents;
+  adj: Adjust; // 가치관 조정값 (0 = 보통, −3 ~ +3)
   costs: LivingCosts; // 리포트(①)에서 쓰는 가정값. rent/mgmt = 학교 주변 기본 시세
   regionId: string; // 지역 id 또는 "custom"
   custom: Region;
@@ -59,7 +59,7 @@ export const INITIAL: AppState = {
   goalTags: ["grades", "clubs", "parents"],
   goal: "",
   analysis: null,
-  pct: toPercents(DEFAULT_WEIGHTS),
+  adj: NEUTRAL,
   costs: { ...DEFAULT_COSTS, rent: firstRegion.rentMedian, mgmt: firstRegion.mgmtMedian },
   regionId: firstRegion.id,
   custom: {
@@ -102,12 +102,21 @@ export function loadState(key = STORAGE_KEY): AppState | null {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<AppState>;
+    const parsed = JSON.parse(raw) as Partial<AppState> & { pct?: Partial<Adjust> };
     // 칩 도입 전 저장값: 예전 기본 문장이면 버리고 기본 칩으로, 직접 쓴 글이면 추가 설명으로 유지
     if (!parsed.goalTags) {
       if (parsed.goal === OLD_DEFAULT_GOAL) delete parsed.goal;
       else parsed.goalTags = [];
     }
+    // 합 1 가중치(pct %) 시절 저장값 → 0 기준 조정값으로
+    if (parsed.pct) {
+      if (!parsed.adj) parsed.adj = fromLegacyWeights(parsed.pct);
+      if (parsed.analysis) parsed.analysis = { ...parsed.analysis, ...fromLegacyWeights(parsed.analysis) };
+      delete parsed.pct;
+    }
+    parsed.adj = sanitizeAdjust(parsed.adj ?? NEUTRAL);
+    // 중개보수를 따로 계산하기 전 기본 초기 비용(165만)은 새 기본값으로
+    if (parsed.costs?.initialTotal === LEGACY_INITIAL_TOTAL) parsed.costs.initialTotal = DEFAULT_COSTS.initialTotal;
     return { ...INITIAL, ...parsed, commute: { ...INITIAL.commute, ...parsed.commute }, costs: { ...INITIAL.costs, ...parsed.costs } };
   } catch {
     return null;

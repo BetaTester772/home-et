@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { cx } from "@/components/ui/styles";
 import { INITIAL, STORAGE_KEY, goalText, loadState, saveState, type AppState, type StepNo } from "@/lib/app-state";
-import { DEFAULT_WEIGHTS, toPercents } from "@/lib/calc";
+import { NEUTRAL, sanitizeAdjust } from "@/lib/calc";
 import { addDays, startOfDay, toInput } from "@/lib/dday";
 import type { WeightAnalysis } from "@/lib/weights";
 import { StepFlow } from "./input/step-flow";
@@ -53,11 +53,11 @@ export function HomeEtApp() {
       });
       if (!res.ok) throw new Error(String(res.status));
       const analysis = (await res.json()) as WeightAnalysis;
-      update({ analysis, pct: toPercents(analysis), decision: null });
+      update({ analysis, adj: sanitizeAdjust(analysis), decision: null });
     } catch {
       update({
-        analysis: { ...DEFAULT_WEIGHTS, reason: "분석 서버에 연결하지 못해 세 기준을 똑같이 두었어요.", source: "default" },
-        pct: toPercents(DEFAULT_WEIGHTS),
+        analysis: { ...NEUTRAL, reason: "분석 서버에 연결하지 못해 모두 보통(0)으로 두었어요.", source: "default" },
+        adj: NEUTRAL,
       });
     } finally {
       setLoading(false);
